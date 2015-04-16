@@ -4,7 +4,7 @@ CS51 Final Project. Optimizing scaled bloom filters for use with sets of strings
 
 
 Overview:
-	A Bloom filter is a probabilistic data structure that stores elements with a constant bit/element ratio. Thus, a Bloom filter has several advantages: it has a constant search time, and can store a large number inputs in a relatively small amount of memory. 
+	A Bloom filter is a probabilistic data structure that stores elements with a constant bit/element ratio. Thus, a Bloom filter has several advantages: it has a constant search time, and can store a large number inputs in a relatively small amount of memory. One of the downsides is that a Bloom filter can return a false positive, but we can easily decrease the false positive percentage to a desired degree. 
 
 	We want to implement a basic Bloom filter, then explore how different hash functions effect performance. Then, we will generate hash functions based on a model hash function by modifying constants and use these hash functions to implement a Bloom filter of variable size. Finally, we will implement a scalable Bloom filter. 
 
@@ -37,10 +37,27 @@ Detailed Description
  Timeline:
  Week of 4/11/15
  - determine implementation language: Google Go
- - plan out functions
+ - plan out final specification
+ - plan out functions/interfaces/higher level design
+ 
+
+ Week of 4/18/15
+ - implement static Bloom filter
+ - implement lookup and insert for a static Bloom filter
+ - implement hash function generating function
+ - implement a Bloom filter that is created to be optimal for a given n and a given k
+ - determine at what n and p threshold we establish that a Bloom filter is "full"
+ - create, essentially a "set" of Bloom filters that takes in a stream of inputs and self-expands to accomodate an unknown number of inputs
+ - implement a search for this Scalable Bloom filter
+
 
 Progress Report
-- what have we done in the last week?
+- carefully understood how Bloom filters work and what factors effect the effectiveness of a Bloom filter
+- outlined our game plan
+- decided to use Google Go after researching implementations of Bloom filters and discussing with our TF
+- discuss potential extensions of our project (i.e. optimization, Scalable Bloom filters, working on an application)
+- started learning Go
+
 
 Version Control
 - git repository

@@ -26,8 +26,7 @@ Detailed Description
  - i.e. a specific outline of the functions we're writing 
 
  Signatures/Interfaces
- - i.e. abstractions
- - given a certain function we are writing, what sort of abstraction barrier do we want it to have, what are it's input outputs etc. 
+bloom filter
  
 
  Modules/Actual Code

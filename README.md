@@ -12,8 +12,10 @@ Outline of Specification:
 Overview:
 - Bloom filters, what we plan to mess with in our optimization (hash functions)
 
-I) Create bloom filters of static size. 
-II) Wrap bloom filters to make them scaleable. 
+I) Create Bloom filters of static size. 
+	a) Implement a Bloom filter with static size (m), static false positive percentage (p), static number of hash functions (k), and a static number of inputs (n). 
+	b) Investigate 
+Wrap bloom filters to make them scaleable. 
 
 
 Detailed Description
@@ -28,9 +30,10 @@ Detailed Description
  - exactly what it sounds like
 
 
- Timeline
- - 4-6 concrete goals for each week 
-
+ Timeline:
+ Week of 4/11/15
+ - determine implementation language: Google Go
+ - plan out functions
 
 Progress Report
 - what have we done in the last week?

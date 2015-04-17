@@ -17,7 +17,7 @@ II) Implement a function that creates a Bloom filter of an optimal size given n 
 	a) Investigate common hash functions - looking for speed, distribution. Select one that performs well and is easily modified, such that modifying the constants does not significantly alter performance.
 	b) Implement a function that generates hash functions similar to our chosen model. 
 	c) Implement a function that optimizes m and k given a particular n and p (this can be done through some probability calculations) and creates a Bloom filter with size m, k. 
-III) Wrap bloom filters to make them scaleable. 
+III) Wrap bloom filters to make them scalable. 
 	a) Take in a stream of inputs, create additional Bloom filters as preceding Bloom filters are full (full-ness is determined by whether or not the preceding Bloom filter has hit the desired false-positive percentage).
 	b) Implement search and insert functions. 
 

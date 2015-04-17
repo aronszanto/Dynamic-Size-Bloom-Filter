@@ -3,10 +3,10 @@
 CS51 Final Project. Optimizing scaled bloom filters for use with sets of strings of arbitrary size. 
 
 
-Overview:
-	A Bloom filter is a probabilistic data structure that stores elements with a constant bit/element ratio. Thus, a Bloom filter has several advantages: it has a constant search time, and can store a large number inputs in a relatively small amount of memory. 
+Overview: 
+	A Bloom filter is a probabilistic data structure that stores elements with a constant bit/element ratio. Thus, a Bloom filter has several advantages: it has a nearly constant search time, and can store a large number inputs in a relatively small amount of memory. 
 
-	We want to implement a basic Bloom filter, then explore how different hash functions effect performance. Then, we will generate hash functions based on a model hash function by modifying constants and use these hash functions to implement a Bloom filter of variable size. Finally, we will implement a scalable Bloom filter. 
+	We want to implement a basic Bloom filter, then explore how different hash functions affect performance. Then, we will generate hash functions based on a model hash function by modifying constants and then use these hash functions to implement a Bloom filter of variable (but pre-known) size. Finally, we will implement a scalable Bloom filter modeled after that of a paper by Almeida et al.
 
 	The advantage of a scalable Bloom filter is that it can take in a stream of inputs, as opposed to requiring a a definite input size a priori. 
 

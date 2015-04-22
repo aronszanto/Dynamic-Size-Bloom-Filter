@@ -8,41 +8,45 @@
 
 */
 
-package main
+package StaticFilter
 
 // Including library packages referenced in this file
 import (
-	// "fmt"
+	"github.com/willf/bitset"
+	"hash"
+	"hash/fnv"
 	"math"
 )
 
-func main() {
-
-}
-
 // type definition for standard bloom filter
-type Bloom struct {
-	eps float64 // false positive error bound
-	n   uint64  // predicted number of elements in filter
-	m   uint64  // size of bit array
-	//hf hash_function // to generate list of bites values h(0)…h(k). type:
-	k uint64 // number of hash functions
-	// bset BitSet // will use external library for this
+type FilterBase struct {
+	m uint64      // size of bitset
+	k uint64      // number of hash functions
+	h hash.Hash64 // hash function generator
 }
 
-// initialize key values using math!!
-func new(num uint64, err_bound float64) Bloom {
-	eps := err_bound
-	n := num
-	m := uint64(math.Ceil(-1 * (float64(n) * math.Log(eps)) / (math.Log(2) * math.Log(2))))
-	//hf := Hash.hash_fun // will use external hash function
-	k := uint64(math.Ceil((float64(m) / float64(n)) * math.Log(2)))
-	//bset = BitSet.new(m) // will use external bites implementation
-	return Bloom{eps, n, m, k}
+type Filter struct {
+	params *FilterBase // needed for generation
+	b      *BitSet     // pointer to bitset
 }
 
-// basic methods. may later include methods for changing epsilon, estimating how many elements are in filter, checking how saturated filter is, etc.
+/*
+ calculates the length of the bitset and the number of
+ required hash functions given the size of set being
+ stored and the acceptable error bound for the task at hand
+*/
+func NewFilterBase(num uint64, eps float64) *FilterBase {
+	fb := new(FilterBase)
+	// calculating length
+	fb.m = uint64(math.Ceil(-1 * (float64(num) * math.Log(eps)) / (math.Log(2) * math.Log(2))))
+	// calculate num hash functions
+	fb.k = uint64(math.Ceil((float64(m) / float64(num)) * math.Log(2)))
+	return &fb
+}
 
-//func insert(key string) Bloom
-//func check(key string) bool
-//func reset()
+func NewFilter(num uint64, eps float64) *Filter {
+	filter := new(Filter)
+	filter.params = NewFilterBase(num, eps)
+	filter.b = BitSet.New(filter.params.m)
+	return &filter
+}

@@ -12,7 +12,8 @@ package main
 
 // Including library packages referenced in this file 
 import (
-    "fmt"
+    //"fmt"
+    "math"
 )
 
 
@@ -22,7 +23,7 @@ func main() {
 
 // type definition for standard bloom filter
 type Bloom struct{
-    bset BitSet // will use external library for this
+    // bset BitSet // will use external library for this
     //hf hash_function // to generate list of bites values h(0)…h(k). type: 
     m uint64 // size of bit array
     k uint64 // number of hash functions
@@ -32,11 +33,11 @@ type Bloom struct{
 
 // initialize key values using math!!
 func new (num uint64, err_bound float64) Bloom {
-    eps = err_bound
-    n = num
-    m = math.ceiling(-1 * (n * math.log(eps) / ((math.log(2) * math.log(2))))
-    hf = Hash.hash_fun // will use external hash function
-    k = math.ceiling((m / n) * math.log(2))
+    eps := err_bound
+    n := num
+    m := math.ceiling(-1 * (n * math.log(eps)) / ((math.log(2) * math.log(2))))
+    hf := Hash.hash_fun // will use external hash function
+    k := math.ceiling((m / n) * math.log(2))
     //bset = BitSet.new(m) // will use external bites implementation
 }
 

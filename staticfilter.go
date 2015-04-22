@@ -36,7 +36,7 @@ func new(num uint64, err_bound float64) Bloom {
 	n := num
 	m := uint64(math.Ceil(-1 * (float64(n) * math.Log(eps)) / (math.Log(2) * math.Log(2))))
 	//hf := Hash.hash_fun // will use external hash function
-	k := uint64(math.Ceil((m / float64(n)) * math.Log(2)))
+	k := uint64(math.Ceil((float64(m) / float64(n)) * math.Log(2)))
 	//bset = BitSet.new(m) // will use external bites implementation
 	return Bloom{eps, n, m, k}
 }

@@ -43,6 +43,6 @@ func new(num uint64, err_bound float64) Bloom {
 
 // basic methods. may later include methods for changing epsilon, estimating how many elements are in filter, checking how saturated filter is, etc.
 
-func insert(key string) Bloom
-func check(key string) bool
-func reset()
+//func insert(key string) Bloom
+//func check(key string) bool
+//func reset()

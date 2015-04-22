@@ -1,1 +1,0 @@
-staticfilter.go

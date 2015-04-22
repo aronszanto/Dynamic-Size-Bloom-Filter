@@ -33,12 +33,14 @@ type Bloom struct{
 
 // initialize key values using math!!
 func new (num uint64, err_bound float64) Bloom {
+    new_bloom Bloom
     eps := err_bound
     n := num
-    m := math.ceiling(-1 * (n * math.log(eps)) / ((math.log(2) * math.log(2))))
-    hf := Hash.hash_fun // will use external hash function
-    k := math.ceiling((m / n) * math.log(2))
+    m := math.Ceil(-1 * (float64(n) * math.Log(eps)) / ((math.Log(2) * math.Log(2))))
+    //hf := Hash.hash_fun // will use external hash function
+    k := math.Ceil((m / float64(n)) * math.Log(2))
     //bset = BitSet.new(m) // will use external bites implementation
+    return new_bloom
 }
 
 // basic methods. may later include methods for changing epsilon, estimating how many elements are in filter, checking how saturated filter is, etc.

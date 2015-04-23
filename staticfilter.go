@@ -51,9 +51,10 @@ func NewFilter(num uint, eps float64) *Filter {
 	return filter
 }
 
-/*
 // Takes in a slice of indexes
-func Insert() {
-
+func (filter *Filter) Insert(data []byte) {
+	//indices := calcBits(data)
+	for i := 0; i < len(indices); i++ {
+		filter.b = filter.b.Set(indices[i])
+	}
 }
-*/

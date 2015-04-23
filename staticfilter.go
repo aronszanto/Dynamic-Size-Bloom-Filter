@@ -14,8 +14,9 @@ package StaticFilter
 import (
 	"github.com/willf/bitset"
 	"hash"
-	//"hash/fnv"
+	"hash/fnv"
 	"math"
+	"encoding/binary"
 )
 
 // type definition for standard bloom filter
@@ -49,20 +50,44 @@ func (fb *FilterBase) CalcBits(d []byte)) []uint {
 	fb.h.reset()
 	fb.h.Write(d)
 	hash_stream := fb.h.Sum(Nil)
+
+
 }
 
 func NewFilter(num uint, eps float64) *Filter {
 	filter := new(Filter)
 	filter.params = NewFilterBase(num, eps)
 	filter.b = bitset.New(filter.params.m)
-	return filter
+	return 
 }
 
 // Takes in a slice of indexes
 func (filter *Filter) Insert(data []byte) {
-	//indices := calcBits(data)
+	// indices := CalcBits(data)
 	indices := []uint{1, 4, 5} // test values
 	for i := 0; i < len(indices); i++ {
 		filter.b = filter.b.Set(indices[i])
 	}
+}
+
+func (filter *Filter) Lookup(data []byte) bool {
+	// indices := CalcBits(data)
+	indices := []uint{1, 4, 5} // test values
+	// might be there unless definitely not in set
+	var found
+	for i := 0; i < indices; i++ {
+		if filter.b.Test(i) == false {
+			// definitely not in set
+			found = false
+			break
+		} else {
+			// might be in the set
+			found = true
+		}
+	}
+	return found
+}
+
+func (filter *Filter) Reset() {
+	filter.b = filter.b.ClearAll()
 }

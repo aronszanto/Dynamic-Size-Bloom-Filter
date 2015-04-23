@@ -12,10 +12,10 @@ package StaticFilter
 
 // Including library packages referenced in this file
 import (
-	// "encoding/binary"
+	"encoding/binary"
 	"github.com/willf/bitset"
 	"hash"
-	// "hash/fnv"
+	"hash/fnv"
 	"math"
 )
 

@@ -23,7 +23,7 @@ import (
 type FilterBase struct {
 	m uint        // size of bitset
 	k uint        // number of hash functions
-	h hash.Hash64 // hashing generator
+	h hash.Hash32 // hashing generator
 }
 
 type Filter struct {
@@ -45,40 +45,42 @@ func NewFilterBase(num uint, eps float64) *FilterBase {
 	return fb
 }
 
-/*
-func (fb *FilterBase) CalcBits(d []byte)) []uint {
-	fb.h = fnv.New64a()
-	fb.h.reset()
+func (fb *FilterBase) CalcBits(d []byte) []uint32 {
+	fb.h = fnv.New32a()
+	fb.h.Reset()
 	fb.h.Write(d)
-	hash_stream := fb.h.Sum(Nil)
+	hash_stream := fb.h.Sum(nil)
+	h1 := binary.BigEndian.Uint32(hash_stream[4:8])
+	h2 := binary.BigEndian.Uint32(hash_stream[0:4])
 
-
+	indices := make([]uint32, fb.k)
+	for i := uint32(0); i < uint32(fb.k); i++ {
+		indices[i] = (h1 + h2*i) % uint32(fb.m)
+	}
+	return indices
 }
-*/
 
 func NewFilter(num uint, eps float64) *Filter {
 	filter := new(Filter)
 	filter.params = NewFilterBase(num, eps)
 	filter.b = bitset.New(filter.params.m)
-	return
+	return filter
 }
 
 // Takes in a slice of indexes
 func (filter *Filter) Insert(data []byte) {
-	// indices := CalcBits(data)
-	indices := []uint{1, 4, 5} // test values
-	for i := 0; i < len(indices); i++ {
-		filter.b = filter.b.Set(indices[i])
+	indices := filter.params.CalcBits(data)
+	for i := uint(0); i < uint(len(indices)); i++ {
+		filter.b = filter.b.Set(uint(indices[i]))
 	}
 }
 
 func (filter *Filter) Lookup(data []byte) bool {
-	// indices := CalcBits(data)
-	indices := []uint{1, 4, 5} // test values
+	indices := filter.params.CalcBits(data)
 	// might be there unless definitely not in set
-	found = false
-	for i := 0; i < indices; i++ {
-		if filter.b.Test(i) == false {
+	var found bool
+	for i := uint(0); i < uint(len(indices)); i++ {
+		if filter.b.Test(uint(i)) == false {
 			// definitely not in set
 			found = false
 			break

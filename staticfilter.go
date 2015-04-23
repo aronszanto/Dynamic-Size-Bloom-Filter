@@ -53,8 +53,29 @@ func NewFilter(num uint, eps float64) *Filter {
 
 // Takes in a slice of indexes
 func (filter *Filter) Insert(data []byte) {
-	//indices := calcBits(data)
+	// indices := CalcBits(data)
 	for i := 0; i < len(indices); i++ {
 		filter.b = filter.b.Set(indices[i])
 	}
+}
+
+func (filter *Filter) Lookup(data []byte) bool {
+	// indices := CalcBits(data)
+	// might be there unless definitely not in set
+	var found
+	for i := 0; i < indices; i++ {
+		if filter.b.Test(i) == false {
+			// definitely not in set
+			found = false
+			break
+		} else {
+			// might be in the set
+			found = true
+		}
+	}
+	return found
+}
+
+func (filter *Filter) Reset() {
+	filter.b = filter.b.ClearAll()
 }

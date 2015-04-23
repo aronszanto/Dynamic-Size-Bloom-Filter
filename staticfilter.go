@@ -12,7 +12,7 @@ package StaticFilter
 
 // Including library packages referenced in this file
 import (
-	"github.com/bitset"
+	"github.com/willf/bitset"
 	"hash"
 	//"hash/fnv"
 	"math"
@@ -54,6 +54,7 @@ func NewFilter(num uint, eps float64) *Filter {
 // Takes in a slice of indexes
 func (filter *Filter) Insert(data []byte) {
 	// indices := CalcBits(data)
+	indices := []uint{1, 4, 5} // test values
 	for i := 0; i < len(indices); i++ {
 		filter.b = filter.b.Set(indices[i])
 	}
@@ -61,6 +62,7 @@ func (filter *Filter) Insert(data []byte) {
 
 func (filter *Filter) Lookup(data []byte) bool {
 	// indices := CalcBits(data)
+	indices := []uint{1, 4, 5} // test values
 	// might be there unless definitely not in set
 	var found
 	for i := 0; i < indices; i++ {

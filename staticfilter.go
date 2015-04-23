@@ -22,7 +22,7 @@ import (
 type FilterBase struct {
 	m uint        // size of bitset
 	k uint        // number of hash functions
-	h hash.Hash64 // hash function generator
+	h hash.Hash64 // hashing generator
 }
 
 type Filter struct {
@@ -42,6 +42,13 @@ func NewFilterBase(num uint, eps float64) *FilterBase {
 	// calculate num hash functions
 	fb.k = uint(math.Ceil((float64(fb.m) / float64(num)) * math.Log(2)))
 	return fb
+}
+
+func (fb *FilterBase) CalcBits(d []byte)) []uint {
+	fb.h = fnv.New64a()
+	fb.h.reset()
+	fb.h.Write(d)
+	hash_stream := fb.h.Sum(Nil)
 }
 
 func NewFilter(num uint, eps float64) *Filter {

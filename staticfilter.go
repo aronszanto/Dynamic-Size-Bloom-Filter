@@ -12,11 +12,11 @@ package StaticFilter
 
 // Including library packages referenced in this file
 import (
+	"encoding/binary"
 	"github.com/willf/bitset"
 	"hash"
 	"hash/fnv"
 	"math"
-	"encoding/binary"
 )
 
 // type definition for standard bloom filter
@@ -45,6 +45,7 @@ func NewFilterBase(num uint, eps float64) *FilterBase {
 	return fb
 }
 
+/*
 func (fb *FilterBase) CalcBits(d []byte)) []uint {
 	fb.h = fnv.New64a()
 	fb.h.reset()
@@ -53,12 +54,13 @@ func (fb *FilterBase) CalcBits(d []byte)) []uint {
 
 
 }
+*/
 
 func NewFilter(num uint, eps float64) *Filter {
 	filter := new(Filter)
 	filter.params = NewFilterBase(num, eps)
 	filter.b = bitset.New(filter.params.m)
-	return 
+	return
 }
 
 // Takes in a slice of indexes

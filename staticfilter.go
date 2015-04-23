@@ -12,7 +12,7 @@ package StaticFilter
 
 // Including library packages referenced in this file
 import (
-	"github.com/bitset"
+	"github.com/willf/bitset"
 	"hash"
 	//"hash/fnv"
 	"math"

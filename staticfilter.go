@@ -12,22 +12,22 @@ package StaticFilter
 
 // Including library packages referenced in this file
 import (
-	"github.com/willf/bitset"
+	"github.com/bitset"
 	"hash"
-	"hash/fnv"
+	//"hash/fnv"
 	"math"
 )
 
 // type definition for standard bloom filter
 type FilterBase struct {
-	m uint64      // size of bitset
-	k uint64      // number of hash functions
+	m uint        // size of bitset
+	k uint        // number of hash functions
 	h hash.Hash64 // hash function generator
 }
 
 type Filter struct {
-	params *FilterBase // needed for generation
-	b      *BitSet     // pointer to bitset
+	params *FilterBase    // needed for generation
+	b      *bitset.BitSet // pointer to bitset
 }
 
 /*
@@ -35,18 +35,18 @@ type Filter struct {
  required hash functions given the size of set being
  stored and the acceptable error bound for the task at hand
 */
-func NewFilterBase(num uint64, eps float64) *FilterBase {
+func NewFilterBase(num uint, eps float64) *FilterBase {
 	fb := new(FilterBase)
 	// calculating length
-	fb.m = uint64(math.Ceil(-1 * (float64(num) * math.Log(eps)) / (math.Log(2) * math.Log(2))))
+	fb.m = uint(math.Ceil(-1 * (float64(num) * math.Log(eps)) / (math.Log(2) * math.Log(2))))
 	// calculate num hash functions
-	fb.k = uint64(math.Ceil((float64(m) / float64(num)) * math.Log(2)))
-	return &fb
+	fb.k = uint(math.Ceil((float64(fb.m) / float64(num)) * math.Log(2)))
+	return fb
 }
 
-func NewFilter(num uint64, eps float64) *Filter {
+func NewFilter(num uint, eps float64) *Filter {
 	filter := new(Filter)
 	filter.params = NewFilterBase(num, eps)
-	filter.b = BitSet.New(filter.params.m)
-	return &filter
+	filter.b = bitset.New(filter.params.m)
+	return filter
 }

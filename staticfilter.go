@@ -1,6 +1,6 @@
 /*
 
- This file implements the basis for our CS51 final project.
+ This file implements the foundation for our CS51 final project.
 
  Joseph Kahn    josephkahn@college.harvard.edu
  Grace Lin      glin@college.harvard.edu
@@ -50,3 +50,10 @@ func NewFilter(num uint64, eps float64) *Filter {
 	filter.b = BitSet.New(filter.params.m)
 	return &filter
 }
+
+/*
+// Takes in a slice of indexes
+func Insert() {
+
+}
+*/

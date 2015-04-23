@@ -12,21 +12,19 @@ package StaticFilter
 
 // Including library packages referenced in this file
 import (
-	"bufio"
-	"encoding/binary"
+	//"encoding/binary"
+	//"fmt"
 	"github.com/willf/bitset"
 	"hash"
 	"hash/fnv"
-	"io"
 	"math"
-	"os"
 )
 
 // type definition for standard bloom filter
 type FilterBase struct {
 	m uint        // size of bitset
 	k uint        // number of hash functions
-	h hash.Hash32 // hashing generator
+	h hash.Hash64 // hashing generator
 }
 
 type Filter struct {
@@ -49,17 +47,21 @@ func NewFilterBase(num uint, eps float64) *FilterBase {
 }
 
 func (fb *FilterBase) CalcBits(d []byte) []uint32 {
-	fb.h = fnv.New32a()
+	fb.h = fnv.New64a()
 	fb.h.Reset()
 	fb.h.Write(d)
-	hash_stream := fb.h.Sum(nil)
-	h1 := binary.BigEndian.Uint32(hash_stream[4:8])
-	h2 := binary.BigEndian.Uint32(hash_stream[0:4])
+	hash := fb.h.Sum64()
+	h1 := uint32(hash & ((1 << 32) - 1))
+	h2 := uint32(hash >> 32)
+	//o := fmt.Sprint("h1 = ", h1, " and h2 = ", h2, "\n")
+	//fmt.Printf(o)
 
 	indices := make([]uint32, fb.k)
-	for i := uint32(0); i < uint32(fb.k); i++ {
-		indices[i] = (h1 + h2*i) % uint32(fb.m)
+	for i := uint32(1); i <= uint32(fb.k); i++ {
+		indices[i-1] = (h1 + h2*i) % uint32(fb.m) //changed this line to i-1 and the above to <= and 1
 	}
+	//op := fmt.Sprint(indices, " : bits set to be flipped\n")
+	//fmt.Printf(op)
 	return indices
 }
 
@@ -72,6 +74,8 @@ func NewFilter(num uint, eps float64) *Filter {
 
 // Takes in a slice of indexes
 func (filter *Filter) Insert(data []byte) {
+	//p := fmt.Sprint("\nOperating onfilter with k = ", filter.params.k, " and m = ", filter.params.m, "\n\n\n")
+	//fmt.Printf(p)
 	indices := filter.params.CalcBits(data)
 	for i := uint(0); i < uint(len(indices)); i++ {
 		filter.b = filter.b.Set(uint(indices[i]))
@@ -81,36 +85,18 @@ func (filter *Filter) Insert(data []byte) {
 func (filter *Filter) Lookup(data []byte) bool {
 	indices := filter.params.CalcBits(data)
 	// might be there unless definitely not in set
-	var found bool
-	for i := uint(0); i < uint(len(indices)); i++ {
-		if filter.b.Test(uint(i)) == false {
+	for i := 0; i < len(indices); i++ {
+		if !filter.b.Test(uint(indices[i])) {
 			// definitely not in set
-			found = false
-			break
-		} else {
-			// might be in the set
-			found = true
+			//op := fmt.Sprint("Bit #", i, " = ", indices[i], " would have been \n")
+			//fmt.Printf(op)
+			return false
 		}
+
 	}
-	return found
+	return true
 }
 
 func (filter *Filter) Reset() {
 	filter.b = filter.b.ClearAll()
-}
-
-// http://stackoverflow.com/questions/5884154
-func ReadLines(path string) ([]string, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	var lines []string
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-	return lines, scanner.Err()
 }

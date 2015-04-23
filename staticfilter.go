@@ -12,10 +12,10 @@ package StaticFilter
 
 // Including library packages referenced in this file
 import (
-	"encoding/binary"
+	// "encoding/binary"
 	"github.com/willf/bitset"
 	"hash"
-	"hash/fnv"
+	// "hash/fnv"
 	"math"
 )
 
@@ -76,7 +76,7 @@ func (filter *Filter) Lookup(data []byte) bool {
 	// indices := CalcBits(data)
 	indices := []uint{1, 4, 5} // test values
 	// might be there unless definitely not in set
-	var found
+	found = false
 	for i := 0; i < indices; i++ {
 		if filter.b.Test(i) == false {
 			// definitely not in set

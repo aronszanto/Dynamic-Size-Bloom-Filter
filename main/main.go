@@ -1,6 +1,6 @@
 package main
 
-import "github.com/josephwandile/Blumo/StaticFilter"
+import "github.com/aszanto/Blumo/StaticFilter"
 import "bufio"
 import "os"
 

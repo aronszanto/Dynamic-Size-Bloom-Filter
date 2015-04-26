@@ -11,18 +11,13 @@
 package ScalableFilter
 
 import (
- 	"github.com/willf/bitset"
-	"hash"
-	"hash/fnv"
+	"github.com/aszanto9/Blumo/StaticFilter"
 	"math"
-	"StaticFilter"
 )
-
-
 
 type SBF struct {
 	// head points to the current filter that is not yet full
-	head *StaticFilter.Filter 
+	head    *StaticFilter.Filter
 	headcap int64
 	// an array of pointers to all of the existing filters
 	filter_slice []*StaticFilter.Filter
@@ -30,58 +25,70 @@ type SBF struct {
 	// m_init is the m of the first filter in an SBF
 	s, N, m_init int64
 	// p is the total final error bound, r is the scaling factor for the error bound of new filters
-	p, r float64
+	p, r  float64
+	count int64
 }
 
-type SBF interface {
+/*type SBF interface {
 	NewSBF SBF
 	SBFlookup bool
-	SBFinsert 
+	SBFinsert
 	NewBF Filter
-}
+}*/
 
-func NewSBF(p float64) SBF {
+func NewSBF(end_p float64) *SBF {
 	//default values for s, r (hardcoded)
-	s := 2
-	r := .5
-	m_init := 100
-	p_init := p * (1-r)
-	headcap := int64(float64(m_init) * math.Log(2))
-	filter1 := StaticFilter.NewFilter(m_init, p_init)
-	return SBF{&filter1, headcap, [&filter1], s, 1, m_init, p, r}
-}
-
-func (sbf *SBF) SBFlookup(data []byte) bool {
-	ispresent = false 
-	for i:= 0; i < sbf.N; i++ {
-		if (sbf.filter_slice[i]).Lookup(data) == true {
-			ispresent = true
-			break
-		}
-		else continue
+	m_init_i := 100
+	s_i := 2
+	N_i := 1
+	r_i := 0.5
+	head_i := StaticFilter.NewFilter(m_init_i, p*(1-r_i))
+	return &SBF{
+		m_init:       m_init_i,
+		s:            s_i,
+		N:            N_i,
+		p:            end_p,
+		r:            r_i,
+		head:         head_i,
+		headcap:      int64(float64(m_init_i) * math.Log(2)),
+		filter_slice: []*SBF{head_i},
+		counter:      0,
 	}
 }
 
-func AddBF(sbf *SBF) SBF {
-	newfilter := StaticFilter.NewFilter(sbf.head.m * sbf.s, sbf.head.p * sbf.r)
-	filter_slice = append(sbf.filter_slice, &newfilter)
-	head = &newfilter 
-	headcap = sbf.headcap * sbf.s
-	return SBF{&newfilter, headcap, filter_slice, s, N + 1, m_init, p, r}
+func (sbf *SBF) SBFlookup(data []byte) bool {
+	for i := range sbf.filter_slice {
+		if sbf.filter_slice[i].Lookup(data) {
+			return true
+		}
+	}
+	return false
+
+}
+
+// maybe insert should simply mutate the existing SBF, not return a completely new one...?
+
+func (sbf *SBF) AddBF() SBF {
+	newfilter := StaticFilter.NewFilter(sbf.head.m*sbf.s, sbf.head.p*sbf.r)
+
+	return &SBF{
+		head:         newfilter,
+		headcap:      sbf.headcap * sbf.s,
+		filter_slice: append(sbf.filter_slice, newfilter),
+		s:            sbf.s,
+		N:            sbf.N + 1,
+		m_init:       sbf.m_init,
+		p:            sbf.p,
+		r:            sbf.r,
+		counter:      0,
+	}
 }
 
 func (sbf *SBF) SBFinsert(data []byte) {
 	if sbf.filter_slice[sbf.N-1].counter < sbf.headcap {
-		sbf.filter_slice[sbf.N-1].Insert(data)
+		sbf.AddBF()
 	}
-	else {
-		AddBF(sbf)
-		sbf.filter_slice[sbf.N-1].Insert(data)
-	}
-}
 
-
-
-func main {
-
+	sbf.filter_slice[sbf.N-1].Insert(data)
+	(sbf.filter_slice[sbf.N-1].counter)++
 }

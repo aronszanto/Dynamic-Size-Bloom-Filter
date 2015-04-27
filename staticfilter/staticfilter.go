@@ -29,7 +29,7 @@ type FilterBase struct {
 type Filter struct {
 	params  *FilterBase    // needed for generation
 	b       *bitset.BitSet // pointer to bitset
-	counter int64          // counts elements
+	Counter uint           // counts elements
 }
 
 /*
@@ -82,7 +82,7 @@ func (f *Filter) K() uint {
 	return f.params.k
 }
 
-func (f *Filter) E() uint {
+func (f *Filter) E() float64 {
 	return f.params.e
 }
 
@@ -94,7 +94,7 @@ func (filter *Filter) Insert(data []byte) {
 	for i := uint(0); i < uint(len(indices)); i++ {
 		filter.b = filter.b.Set(uint(indices[i]))
 	}
-	filter.counter++
+	filter.Counter++
 }
 
 func (filter *Filter) Lookup(data []byte) bool {

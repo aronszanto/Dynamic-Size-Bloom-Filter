@@ -1,6 +1,7 @@
 package main
 
-import "github.com/aszanto9/Blumo/StaticFilter"
+import "github.com/aszanto9/Blumo/scalable"
+import "github.com/aszanto9/Blumo/staticfilter"
 import "bufio"
 import "os"
 

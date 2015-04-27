@@ -107,3 +107,6 @@ func (filter *Filter) Lookup(data []byte) bool {
 			//fmt.Printf(op)
 			return false
 		}
+	}
+	return true
+}

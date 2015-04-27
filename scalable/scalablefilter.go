@@ -11,7 +11,7 @@
 package ScalableFilter
 
 import (
-	"github.com/aszanto9/Blumo/StaticFilter"
+	"github.com/aszanto9/Blumo/staticfilter"
 	"math"
 )
 

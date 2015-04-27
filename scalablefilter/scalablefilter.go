@@ -1,6 +1,6 @@
 /*
 
- This file implements the extension for our CS51 final project.
+ This file implements the foundation for our CS51 final project.
 
  Joseph Kahn    josephkahn@college.harvard.edu
  Grace Lin      glin@college.harvard.edu

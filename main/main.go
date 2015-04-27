@@ -1,14 +1,19 @@
 package main
 
 import "github.com/aszanto9/Blumo/scalablefilter"
+
+/*
+This exists for testing.
 import "github.com/aszanto9/Blumo/staticfilter"
+*/
+
 import "bufio"
 import "os"
 
 import "fmt"
 
 func main() {
-	filter := ScalableFilter.New(.001)
+	filter := ScalableFilter.NewFilter(.001)
 
 	inserted := InsertLines(filter, "Dictionaries/bigdict.txt")
 	//lines := []string{"aron", "grace", "joe", "joseph", "kai ri"}
@@ -18,7 +23,7 @@ func main() {
 }
 
 // referenced http://stackoverflow.com/questions/5884154
-func InsertLines(filter *StaticFilter.Filter, path string) int {
+func InsertLines(filter *ScalableFilter.SBF, path string) int {
 	file, err := os.Open(path)
 	fmt.Printf("Attempting to open file...\n")
 	if err != nil {

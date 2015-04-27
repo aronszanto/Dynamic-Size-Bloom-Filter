@@ -15,7 +15,7 @@ import "fmt"
 func main() {
 	filter := ScalableFilter.NewFilter(.001)
 
-	inserted := InsertLines(filter, "Dictionaries/bigdict.txt")
+	inserted := InsertLines(filter, "../Dictionaries/bigdict.txt")
 	//lines := []string{"aron", "grace", "joe", "joseph", "kai ri"}
 
 	test := fmt.Sprint("Inserted ", inserted, " entries.\n Looking for grace: ", filter.Lookup([]byte("grace")), "\n\nLooking for azazaz: ", filter.Lookup([]byte("azazaz")), "\n\n")

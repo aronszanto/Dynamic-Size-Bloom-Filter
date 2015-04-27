@@ -12,8 +12,6 @@ package StaticFilter
 
 // Including library packages referenced in this file
 import (
-	//"encoding/binary"
-	//"fmt"
 	"github.com/willf/bitset"
 	"hash"
 	"hash/fnv"
@@ -25,11 +23,13 @@ type FilterBase struct {
 	m uint        // size of bitset
 	k uint        // number of hash functions
 	h hash.Hash64 // hashing generator
+	e float64
 }
 
 type Filter struct {
-	params *FilterBase    // needed for generation
-	b      *bitset.BitSet // pointer to bitset
+	params  *FilterBase    // needed for generation
+	b       *bitset.BitSet // pointer to bitset
+	counter int64          // counts elements
 }
 
 /*
@@ -37,8 +37,10 @@ type Filter struct {
  required hash functions given the size of set being
  stored and the acceptable error bound for the task at hand
 */
+// clean this up, make it one statement
 func NewFilterBase(num uint, eps float64) *FilterBase {
 	fb := new(FilterBase)
+	fb.e = eps
 	// calculating length
 	fb.m = uint(math.Ceil(-1 * (float64(num) * math.Log(eps)) / (math.Log(2) * math.Log(2))))
 	// calculate num hash functions
@@ -72,6 +74,18 @@ func NewFilter(num uint, eps float64) *Filter {
 	return filter
 }
 
+func (f *Filter) M() uint {
+	return f.params.m
+}
+
+func (f *Filter) K() uint {
+	return f.params.k
+}
+
+func (f *Filter) E() uint {
+	return f.params.e
+}
+
 // Takes in a slice of indexes
 func (filter *Filter) Insert(data []byte) {
 	//p := fmt.Sprint("\nOperating onfilter with k = ", filter.params.k, " and m = ", filter.params.m, "\n\n\n")
@@ -80,6 +94,7 @@ func (filter *Filter) Insert(data []byte) {
 	for i := uint(0); i < uint(len(indices)); i++ {
 		filter.b = filter.b.Set(uint(indices[i]))
 	}
+	filter.counter++
 }
 
 func (filter *Filter) Lookup(data []byte) bool {
@@ -92,11 +107,3 @@ func (filter *Filter) Lookup(data []byte) bool {
 			//fmt.Printf(op)
 			return false
 		}
-
-	}
-	return true
-}
-
-func (filter *Filter) Reset() {
-	filter.b = filter.b.ClearAll()
-}

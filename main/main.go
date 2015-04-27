@@ -8,36 +8,33 @@ import "os"
 import "fmt"
 
 func main() {
-	filter := StaticFilter.NewFilter(1000, .01)
+	filter := ScalableFilter.New(.001)
 
-	//lines, _ := ReadLines("./Dictonaries/tinydict.txt")
-	lines := []string{"aron", "grace", "joe", "joseph", "kai ri"}
+	inserted := InsertLines(filter, "Dictionaries/bigdict.txt")
+	//lines := []string{"aron", "grace", "joe", "joseph", "kai ri"}
 
-	for i := 0; i < len(lines); i++ {
-		op := fmt.Sprint("Inserting ", lines[i], "...\n")
-		fmt.Printf(op)
-		filter.Insert([]byte(lines[i]))
-	}
-
-	fmt.Printf("\n\n")
-	test := fmt.Sprint("Looking for aron: ", filter.Lookup([]byte("aron")), "\n\nLooking for matt: ", filter.Lookup([]byte("matt")), "\n\n")
+	test := fmt.Sprint("Inserted ", inserted, " entries.\n Looking for grace: ", filter.Lookup([]byte("grace")), "\n\nLooking for azazaz: ", filter.Lookup([]byte("azazaz")), "\n\n")
 	fmt.Printf(test)
 }
 
-// http://stackoverflow.com/questions/5884154
-func ReadLines(path string) ([]string, error) {
+// referenced http://stackoverflow.com/questions/5884154
+func InsertLines(filter *StaticFilter.Filter, path string) int {
 	file, err := os.Open(path)
 	fmt.Printf("Attempting to open file...\n")
 	if err != nil {
 		fmt.Printf("File open failed.\n")
-		return nil, err
+		panic(err)
+		return 0
 	}
 	defer file.Close()
 
-	var lines []string
 	scanner := bufio.NewScanner(file)
+	count := 0
 	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
+		//op := fmt.Sprint("Inserting ", lines[i], "...\n")
+		//fmt.Printf(op)
+		filter.Insert([]byte(scanner.Text()))
+		count++
 	}
-	return lines, scanner.Err()
+	return count
 }

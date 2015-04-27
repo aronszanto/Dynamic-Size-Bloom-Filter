@@ -35,7 +35,7 @@ type SBF struct {
 	NewBF Filter
 }*/
 
-func NewSBF(end_p float64) *SBF {
+func NewFilter(end_p float64) *SBF {
 	//default values for s, r (hardcoded)
 	m_init_i := uint(100)
 	s_i := uint(2)
@@ -54,7 +54,7 @@ func NewSBF(end_p float64) *SBF {
 	}
 }
 
-func (sbf *SBF) lookup(data []byte) bool {
+func (sbf *SBF) Lookup(data []byte) bool {
 	for i := range sbf.filter_slice {
 		if sbf.filter_slice[i].Lookup(data) {
 			return true
@@ -66,7 +66,7 @@ func (sbf *SBF) lookup(data []byte) bool {
 
 // maybe insert should simply mutate the existing SBF, not return a completely new one...?
 
-func (sbf *SBF) AddBF() *SBF {
+func (sbf *SBF) addBF() *SBF {
 	newfilter := StaticFilter.NewFilter((sbf.head.M())*sbf.s, (sbf.head.E())*sbf.r)
 
 	return &SBF{
@@ -81,9 +81,9 @@ func (sbf *SBF) AddBF() *SBF {
 	}
 }
 
-func (sbf *SBF) insert(data []byte) {
+func (sbf *SBF) Insert(data []byte) {
 	if sbf.filter_slice[sbf.N-1].Counter < sbf.headcap {
-		sbf.AddBF()
+		sbf.addBF()
 	}
 
 	sbf.filter_slice[sbf.N-1].Insert(data)

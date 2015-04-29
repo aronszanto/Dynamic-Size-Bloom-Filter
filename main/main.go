@@ -13,7 +13,7 @@ import "os"
 import "fmt"
 
 func main() {
-	filter := ScalableFilter.NewFilter(.001)
+	filter := ScalableFilter.NewFilter(.01)
 
 	inserted := InsertLines(filter, "../Dictionaries/bigdict.txt")
 	//lines := []string{"aron", "grace", "joe", "joseph", "kai ri"}

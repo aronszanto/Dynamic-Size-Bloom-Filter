@@ -11,6 +11,7 @@
 package ScalableFilter
 
 import (
+	"fmt"
 	"github.com/aszanto9/Blumo/staticfilter"
 	"math"
 )
@@ -37,10 +38,10 @@ type SBF struct {
 
 func NewFilter(end_p float64) *SBF {
 	//default values for s, r (hardcoded)
-	m_init_i := uint(100)
-	s_i := uint(2)
+	m_init_i := uint(1000)
+	s_i := uint(4)
 	N_i := uint(1)
-	r_i := 0.5
+	r_i := 0.8
 	head_i := StaticFilter.NewFilter(uint(m_init_i), end_p*(1-r_i))
 	return &SBF{
 		m_init:       m_init_i,
@@ -56,6 +57,7 @@ func NewFilter(end_p float64) *SBF {
 
 func (sbf *SBF) Lookup(data []byte) bool {
 	for i := range sbf.filter_slice {
+		fmt.Printf(fmt.Sprint("Looking for ", data, " in filter #", i, "\n"))
 		if sbf.filter_slice[i].Lookup(data) {
 			return true
 		}
@@ -66,19 +68,15 @@ func (sbf *SBF) Lookup(data []byte) bool {
 
 // maybe insert should simply mutate the existing SBF, not return a completely new one...?
 
-func (sbf *SBF) addBF() *SBF {
-	newfilter := StaticFilter.NewFilter((sbf.head.M())*sbf.s, (sbf.head.E())*sbf.r)
+func (sbf *SBF) addBF() {
 
-	return &SBF{
-		head:         newfilter,
-		headcap:      sbf.headcap * sbf.s,
-		filter_slice: append(sbf.filter_slice, newfilter),
-		s:            sbf.s,
-		N:            sbf.N + 1,
-		m_init:       sbf.m_init,
-		p:            sbf.p,
-		r:            sbf.r,
-	}
+	newfilter := StaticFilter.NewFilter((sbf.head.M())*sbf.s, (sbf.head.E())*sbf.r)
+	sbf.head = newfilter
+	sbf.headcap *= sbf.s
+	sbf.filter_slice = append(sbf.filter_slice, newfilter)
+	sbf.N++
+	fmt.Printf(fmt.Sprint("Bloom filter #", sbf.N, " added\n"))
+
 }
 
 func (sbf *SBF) Insert(data []byte) {

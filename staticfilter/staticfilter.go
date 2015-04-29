@@ -12,6 +12,7 @@ package StaticFilter
 
 // Including library packages referenced in this file
 import (
+	"fmt"
 	"github.com/willf/bitset"
 	"hash"
 	"hash/fnv"
@@ -70,6 +71,7 @@ func (fb *FilterBase) CalcBits(d []byte) []uint32 {
 func NewFilter(num uint, eps float64) *Filter {
 	filter := new(Filter)
 	filter.params = NewFilterBase(num, eps)
+	fmt.Printf(fmt.Sprint("m = ", filter.params.m, "\n"))
 	filter.b = bitset.New(filter.params.m)
 	return filter
 }

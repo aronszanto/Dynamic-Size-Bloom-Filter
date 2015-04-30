@@ -18,10 +18,10 @@ func main() {
 	//defer profile.Start(profile.CPUProfile).Stop()
 	filter := ScalableFilterPartition.NewFilter(.001)
 
-	inserted := InsertLines(filter, "../Dictionaries/bigdict.txt")
+	inserted := InsertLines(filter, "../Dictionaries/tinydicttest.txt")
 	//lines := []string{"aron", "grace", "joe", "joseph", "kai ri"}
 
-	test := fmt.Sprint("Inserted ", inserted, " entries.\n Looking for grace: ", filter.Lookup([]byte("grace")), "\n\nLooking for azazaz: ", filter.Lookup([]byte("azazaz")), "\n\n")
+	test := fmt.Sprint("Inserted ", inserted, " entries.\n Looking for grace: ", filter.Lookup([]byte("grace")), "\n\nLooking for qwertyuiop: ", filter.Lookup([]byte("qwertyuiop")), "\n\n")
 	fmt.Printf(test)
 }
 
@@ -38,10 +38,10 @@ func InsertLines(filter *ScalableFilterPartition.SBF, path string) int {
 	scanner := bufio.NewScanner(file)
 	count := 0
 	for scanner.Scan() {
-		//l := scanner.Text()
-		//op := fmt.Sprint("Inserting ", l, "\n")
-		//fmt.Printf(op)
-		filter.Insert([]byte(scanner.Text()))
+		l := scanner.Text()
+		op := fmt.Sprint("Inserting ", l, "\n")
+		fmt.Printf(op)
+		filter.Insert([]byte(l))
 		count++
 	}
 	file.Close()

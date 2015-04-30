@@ -37,8 +37,8 @@ type SBF struct {
 
 func NewFilter(end_e float64) *SBF {
 	//default values for s, r (hardcoded)
-	m_init_i := uint(10000)
-	s_i := uint(4)
+	m_init_i := uint(10)
+	s_i := uint(2)
 	p_i := 0.5
 	N_i := uint(1)
 	r_i := 0.8
@@ -56,17 +56,16 @@ func NewFilter(end_e float64) *SBF {
 }
 
 func (sbf *SBF) Lookup(data []byte) bool {
-	for i := range sbf.filter_slice {
-		//fmt.Printf(fmt.Sprint("Looking for ", data, " in filter #", i, "\n"))
+	for i := uint(0); i < sbf.N; i++ {
+		fmt.Printf(fmt.Sprint("Looking for ", data, " in filter #", i, "\n"))
 		if sbf.filter_slice[i].Lookup(data) {
+			fmt.Printf(fmt.Sprint("Found in filter ", i, "\n"))
 			return true
 		}
 	}
 	return false
 
 }
-
-// maybe insert should simply mutate the existing SBF, not return a completely new one...?
 
 func (sbf *SBF) addBF() {
 	sbf.N++

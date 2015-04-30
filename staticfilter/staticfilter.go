@@ -29,7 +29,7 @@ type FilterBase struct {
 
 type Filter struct {
 	params  *FilterBase    // needed for generation
-	b       *bitset.BitSet // pointer to bitset
+	b       *[]bitset.BitSet // pointer to bitset slice
 	Counter uint           // counts elements
 }
 
@@ -45,7 +45,9 @@ func NewFilterBase(num uint, eps float64) *FilterBase {
 	// calculating length
 	fb.m = uint(math.Ceil(-1 * (float64(num) * math.Log(eps)) / (math.Log(2) * math.Log(2))))
 	// calculate num hash functions
-	fb.k = uint(math.Ceil((float64(fb.m) / float64(num)) * math.Log(2)))
+	fb.k = uint(math.Ceil(math.Log(eps)/math.Log(2)))
+	// Pretty sure you can just do this
+	// fb:= FilterBase{*insert equation for m here, inesrt equation for k here, h, eps}
 	return fb
 }
 
@@ -60,8 +62,8 @@ func (fb *FilterBase) CalcBits(d []byte) []uint32 {
 	//fmt.Printf(o)
 
 	indices := make([]uint32, fb.k)
-	for i := uint32(1); i <= uint32(fb.k); i++ {
-		indices[i-1] = (h1 + h2*i) % uint32(fb.m) //changed this line to i-1 and the above to <= and 1
+	for i := uint32(0); i <= uint32(fb.k); i++ {
+		indices[i] = (h1 + h2*i) % uint32(fb.m) //changed this line to i-1 and the above to <= and 1
 	}
 	//op := fmt.Sprint(indices, " : bits set to be flipped\n")
 	//fmt.Printf(op)

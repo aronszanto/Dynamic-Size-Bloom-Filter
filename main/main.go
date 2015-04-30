@@ -1,6 +1,6 @@
 package main
 
-import "github.com/aszanto9/Blumo/scalablefilter"
+//import "github.com/aszanto9/Blumo/scalablefilter"
 
 /*
 This exists for testing.
@@ -10,10 +10,13 @@ import "github.com/aszanto9/Blumo/staticfilter"
 import "bufio"
 import "os"
 
+//import "github.com/davecheney/profile"
+import "github.com/aszanto9/Blumo/scalablefilterpartition"
 import "fmt"
 
 func main() {
-	filter := ScalableFilter.NewFilter(.01)
+	//defer profile.Start(profile.CPUProfile).Stop()
+	filter := ScalableFilterPartition.NewFilter(.001)
 
 	inserted := InsertLines(filter, "../Dictionaries/bigdict.txt")
 	//lines := []string{"aron", "grace", "joe", "joseph", "kai ri"}
@@ -23,7 +26,7 @@ func main() {
 }
 
 // referenced http://stackoverflow.com/questions/5884154
-func InsertLines(filter *ScalableFilter.SBF, path string) int {
+func InsertLines(filter *ScalableFilterPartition.SBF, path string) int {
 	file, err := os.Open(path)
 	fmt.Printf("Attempting to open file...\n")
 	if err != nil {
@@ -31,15 +34,16 @@ func InsertLines(filter *ScalableFilter.SBF, path string) int {
 		panic(err)
 		return 0
 	}
-	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
 	count := 0
 	for scanner.Scan() {
-		//op := fmt.Sprint("Inserting ", lines[i], "...\n")
+		//l := scanner.Text()
+		//op := fmt.Sprint("Inserting ", l, "\n")
 		//fmt.Printf(op)
 		filter.Insert([]byte(scanner.Text()))
 		count++
 	}
+	file.Close()
 	return count
 }

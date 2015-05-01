@@ -106,6 +106,14 @@ func (f *Filter) CalcBits(d []byte) {
 	//fmt.Printf(op)
 }
 
+func (f *Filter) BitsFlipped() uint {
+	c := uint(0)
+	for i := range f.ps {
+		c += f.ps[i].Count()
+	}
+	return c
+}
+
 func setParts(sp, k uint) []*bitset.BitSet {
 	sets := make([]*bitset.BitSet, k)
 	for i := range sets {

@@ -12,9 +12,10 @@ import "github.com/aszanto9/Blumo/bloom_i"
 //import "testing"
 
 func main() {
+	err := 0.001
+
 	dict := init_dict()
 	not_in_dict := init_not_dict()
-	err := 0.001
 	static := StaticFilterPartition.NewFilter(1149891, err)
 	scalable := ScalableFilterPartition.NewFilter(err)
 

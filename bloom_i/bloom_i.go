@@ -7,13 +7,14 @@ package bloom_i
 import "math"
 
 type BLOOMFILTER interface {
-	Insert(data []byte)
-	Lookup(data []byte) bool
-	Count() uint
-	GetN() uint
-	ApproxP() float64
+	Insert(data []byte)      // inserts a key
+	Lookup(data []byte) bool // checks whether a key has been inserted, never returns false negatives
+	Count() uint             // number of keys inserted
+	GetN() uint              // expected number of keys
+	ApproxP() float64        // approximate fill ratio
 }
 
+// methods calculate number of hash functions, size of bitset, and size of partition.
 func CalcK(err_bound float64) uint {
 	return uint(math.Ceil(math.Log2(float64(1) / float64(err_bound))))
 }

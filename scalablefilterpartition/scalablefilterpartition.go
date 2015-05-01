@@ -89,16 +89,6 @@ func (sbf *SBF) addBF() {
 	sbf.filter_slice = append(sbf.filter_slice, newfilter)
 }
 
-// not meant to be called, ever
-func (sbf *SBF) GetN() uint {
-	return 0
-}
-
-// Not meant to be called, ever
-func (sbf *SBF) ApproxP() float64 {
-	return 0.0
-}
-
 /*
  Insert operates purely on the curent static filter provided its fill ratio has not been
  saturated.
@@ -109,4 +99,12 @@ func (sbf *SBF) Insert(data []byte) {
 		sbf.addBF()
 	}
 	sbf.head.Insert(data)
+}
+
+func (sbf *SBF) GetN() uint {
+	return 0
+}
+
+func (sbf *SBF) ApproxP() float64 {
+	return 0.0
 }

@@ -113,7 +113,7 @@ func (filter *Filter) ApproxP() float64 {
 }
 
 /*
- Takes in a slice of data, uses CalcBits to determine which bits to flit,
+ Takes in a slice of data, uses CalcBits to determine which bits to flip,
  and then sets the appopriate bits to 1s.
 */
 func (filter *Filter) Insert(data []byte) {

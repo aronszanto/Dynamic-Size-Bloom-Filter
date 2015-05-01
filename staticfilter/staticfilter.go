@@ -1,6 +1,10 @@
 /*
 
- This file implements the foundation for our CS51 final project.
+ Before we chose to partition our filter, we built out this plain static filter, which
+ forms the foundation for scaleablefilter.go.
+
+ Though the variable names m, k, n, and h are not particularly descriptive, they are consistent
+ with the research available on bloom filters, so we have chosen to keep them.
 
  Joseph Kahn    josephkahn@college.harvard.edu
  Grace Lin      glin@college.harvard.edu
@@ -19,7 +23,7 @@ import (
 	"math"
 )
 
-// type definition for standard bloom filter
+// Type definition for standard bloom filter
 type FilterBase struct {
 	m         uint        // size of bitset
 	k         uint        // number of hash functions
@@ -28,45 +32,45 @@ type FilterBase struct {
 }
 
 type Filter struct {
-	params  *FilterBase      // needed for generation
+	params  *FilterBase      // needed for generation of new filters
 	bset    *[]bitset.BitSet // pointer to bitset slice
-	counter uint             // counts elements
+	counter uint             // counts elements in filter
 }
 
 /*
- calculates the length of the bitset and the number of
- required hash functions given the size of set being
- stored and the acceptable error bound for the task at hand
+ Given the set size and an acceptable error bound for false positives
+ calculates the size of the bitset, and the number of hash functions
+ required for insertion
 */
-// clean this up, make it one statement
 func NewFilterBase(num uint, err_bound float64) *FilterBase {
 	filter_base := new(FilterBase)
 	filter_base.err_bound = err_bound
-	// calculating length
+	// calculating required legnth, m, of bitset
 	filter_base.m = uint(math.Ceil(-1 * (float64(num) * math.Log(err_bound)) / (math.Log(2) * math.Log(2))))
 	// calculate num hash functions
 	filter_base.k = uint(math.Ceil(math.Log(err_bound) / math.Log(2)))
-	// Pretty sure you can just do this
-	// filter_base:= FilterBase{*insert equation for m here, inesrt equation for k here, h, err_bound}
 	return filter_base
 }
 
-func (filter_base *FilterBase) CalcBits(d []byte) []uint32 {
+/*
+ For each string in the set, CalcBits returns a slice of the bits to be flipped.
+
+ i.e. Given a string, S, and a number of hash functions, k, a slice of length k
+ is returned, where each element in the slice corresponds to the hash of a given hash
+ function of S.
+*/
+func (filter_base *FilterBase) CalcBits(data []byte) []uint32 {
 	filter_base.h = fnv.New64a()
 	filter_base.h.Reset()
-	filter_base.h.Write(d)
+	filter_base.h.Write(data)
 	hash := filter_base.h.Sum64()
 	h1 := uint32(hash & ((1 << 32) - 1))
 	h2 := uint32(hash >> 32)
-	//o := fmt.Sprint("h1 = ", h1, " and h2 = ", h2, "\n")
-	//fmt.Printf(o)
 
 	indices := make([]uint32, filter_base.k)
 	for i := uint32(0); i <= uint32(filter_base.k); i++ {
-		indices[i] = (h1 + h2*i) % uint32(filter_base.m) //changed this line to i-1 and the above to <= and 1
+		indices[i] = (h1 + h2*i) % uint32(filter_base.m)
 	}
-	//op := fmt.Sprint(indices, " : bits set to be flipped\n")
-	//fmt.Printf(op)
 	return indices
 }
 
@@ -77,6 +81,11 @@ func NewFilter(num uint, err_bound float64) *Filter {
 	filter.bset = bitset.New(filter.params.m)
 	return filter
 }
+
+/*
+ The following functions make it cleaner to access these parameters
+ outside of this package.
+*/
 
 func (filter *Filter) M() uint {
 	return filter.params.m
@@ -90,10 +99,11 @@ func (filter *Filter) E() float64 {
 	return filter.params.err_bound
 }
 
-// Takes in a slice of indexes
+/*
+ Takes in a slice of data, uses CalcBits to determine which bits to flit,
+ and then sets the appopriate bits to 1s.
+*/
 func (filter *Filter) Insert(data []byte) {
-	//p := fmt.Sprint("\nOperating onfilter with k = ", filter.params.k, " and m = ", filter.params.m, "\n\n\n")
-	//fmt.Printf(p)
 	indices := filter.params.CalcBits(data)
 	for i := uint(0); i < uint(len(indices)); i++ {
 		filter.bset = filter.bset.Set(uint(indices[i]))
@@ -101,16 +111,18 @@ func (filter *Filter) Insert(data []byte) {
 	filter.counter++
 }
 
+/*
+ Follows a similar method to Insert (in terms of calculating indexes of bits),
+ but instead of flipping bits, checks to see if they have already been flipped.
+*/
 func (filter *Filter) Lookup(data []byte) bool {
 	indices := filter.params.CalcBits(data)
-	// might be there unless definitely not in set
 	for i := 0; i < len(indices); i++ {
 		if !filter.bset.Test(uint(indices[i])) {
 			// definitely not in set
-			//op := fmt.Sprint("Bit #", i, " = ", indices[i], " would have been \n")
-			//fmt.Printf(op)
 			return false
 		}
 	}
+	// might be in set, with false-positive rate given by err_bound
 	return true
 }

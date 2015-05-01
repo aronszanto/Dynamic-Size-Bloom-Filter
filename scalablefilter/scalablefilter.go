@@ -1,6 +1,16 @@
 /*
 
- This file implements the foundation for our CS51 final project.
+ We started out with this, but were never able to get it to work perfectly.
+ Without the partitioning we have since added, we got runtime errors for trying to
+ flip bits outside the bounds of the slices we created.
+
+ As we broadened the scope of our academic research we found that scaleable filters
+ are seldom implemented without partitioning due to the low flexibility in the number
+ of keys that can be inserted into the filter. As such, we chose to prioritise
+ implementing the partioned filter over debugging this one.
+
+ This code is purely included to show part of our development process, and no tests
+ have been written for it.
 
  Joseph Kahn    josephkahn@college.harvard.edu
  Grace Lin      glin@college.harvard.edu
@@ -29,19 +39,11 @@ type SBF struct {
 	p, r float64
 }
 
-/*type SBF interface {
-	NewSBF SBF
-	SBFlookup bool
-	SBFinsert
-	NewBF Filter
-}*/
-
 func NewFilter(end_p float64) *SBF {
 	//default values for s, r (hardcoded)
 	n_init_i := uint(1000)
 	s_i := uint(4)
 	N_i := uint(1)
-	// we might not want to hard code this, leave it as a constant?
 	r_i := 0.8
 	head_i := StaticFilter.NewFilter(uint(n_init_i), end_p*(1-r_i))
 	return &SBF{
@@ -67,10 +69,7 @@ func (sbf *SBF) Lookup(data []byte) bool {
 
 }
 
-// maybe insert should simply mutate the existing SBF, not return a completely new one...?
-
 func (sbf *SBF) addBF() {
-
 	newfilter := StaticFilter.NewFilter((sbf.head.M())*sbf.s, (sbf.head.E())*sbf.r)
 	sbf.head = newfilter
 	sbf.headcap *= sbf.s
@@ -84,7 +83,6 @@ func (sbf *SBF) Insert(data []byte) {
 	if sbf.filter_slice[sbf.N-1].Counter < sbf.headcap {
 		sbf.addBF()
 	}
-
 	sbf.filter_slice[sbf.N-1].Insert(data)
 	(sbf.filter_slice[sbf.N-1].Counter)++
 }

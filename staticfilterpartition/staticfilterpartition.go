@@ -1,6 +1,7 @@
 /*
 
- This file implements the foundation for our CS51 final project.
+ This file implements the foundation for our CS51 final project. Scaleable filters are essentially
+ a whole bunch of static filters takced onto each other.
 
  Joseph Kahn    josephkahn@college.harvard.edu
  Grace Lin      glin@college.harvard.edu
@@ -13,7 +14,6 @@ package StaticFilterPartition
 // Including library packages referenced in this file
 import (
 	"encoding/binary"
-	//"fmt"
 	"github.com/willf/bitset"
 	"hash"
 	"hash/fnv"
@@ -36,7 +36,7 @@ type Filter struct {
 	params     *FilterBase      // needed for generation
 	partitions []*bitset.BitSet // partitions
 	counter    uint             // counts elements
-	hashedis   []uint           // **********!!!!!!! ARON WHAT IS THIS IT'S NOT DESCRIPTIVE
+	hashed_is  []uint           // keeps track of the int representations which need to be flipped in bitset
 }
 
 /*
@@ -80,15 +80,17 @@ func NewFilter(num uint, err_bound float64) *Filter {
 		params:     init_params,
 		partitions: setParts(init_params.partition_size, init_params.k),
 		counter:    uint(0),
-		hashedis:   make([]uint, init_params.k),
+		hashed_is:  make([]uint, init_params.k),
 	}
-
-	/*filter.params = NewFilterBase(num, err_bound)
-	fmt.Printf(fmt.Sprint("m = ", filter.params.m, "\n"))
-	filter.partitions = setParts(filter.params.sp, filter.params.k)
-	return filter*/
 }
 
+/*
+ For each string in the set, CalcBits returns a slice of the bits to be flipped.
+
+ i.e. Given a string, S, and a number of hash functions, k, a slice of length k
+ is returned, where each element in the slice corresponds to the hash of a given hash
+ function of S.
+*/
 func (filter *Filter) CalcBits(d []byte) {
 	//fmt.Printf("CalcBits\n")
 	filter.params.h.Reset()
@@ -96,14 +98,9 @@ func (filter *Filter) CalcBits(d []byte) {
 	hash := filter.params.h.Sum(nil)
 	h1 := binary.BigEndian.Uint32(hash[0:4])
 	h2 := binary.BigEndian.Uint32(hash[4:8])
-	//o := fmt.Sprint("h1 = ", h1, " and h2 = ", h2, "\n")
-	//fmt.Printf(o)
-	for i := range filter.hashedis[:filter.params.k] {
-		filter.hashedis[i] = (uint(h2) + uint(h1)*uint(i)) % filter.params.partition_size //changed this line to i-1 and the above to <= and 1
+	for i := range filter.hashed_is[:filter.params.k] {
+		filter.hashed_is[i] = (uint(h2) + uint(h1)*uint(i)) % filter.params.partition_size
 	}
-
-	//op := fmt.Sprint(indices, " : bits set to be flipped\n")
-	//fmt.Printf(op)
 }
 
 func (f *Filter) BitsFlipped() uint {
@@ -138,33 +135,38 @@ func (filter *Filter) E() float64 {
 	return filter.params.err_bound
 }
 
-// return approximate fill ratio across the k partitions
+// return approximate fill ratio across the partitions
 func (filter *Filter) ApproxP() float64 {
 	return 1.0 - math.Exp(-float64(filter.counter)/float64(filter.params.m))
 }
 
-// Takes in a slice of indexes
+/*
+ Takes in data (in the case of a dictionary, strings), runs it through CalcBits,
+ which returns a slice of bits to be flipper, and flips appropriate bits.
+*/
 func (filter *Filter) Insert(data []byte) {
-	//p := fmt.Sprint("\nOperating onfilter with k = ", filter.params.k, " and m = ", filter.params.m, "\n\n\n")
-	//fmt.Printf(p)
 	filter.CalcBits(data)
-	//fmt.Printf("Insert after CalcBits\n")
-	for i, v := range filter.hashedis[:filter.params.k] {
-		//fmt.Printf(fmt.Sprint("Loop iteration ", i, "\n"))
+	for i, v := range filter.hashed_is[:filter.params.k] {
 		filter.partitions[i].Set(v)
 	}
 	filter.counter++
 }
 
+/*
+ Finds the indexes of a given element (as in Insert), but instead of flipping bits,
+ checks to see if they have been set to 1s. If they have, it's possible that an element
+ which is not a member returns true. However, if an element HAS been inserted, it will
+ never come back as a false negative.
+*/
 func (filter *Filter) Lookup(data []byte) bool {
 	filter.CalcBits(data)
-	for i, v := range filter.hashedis[:filter.params.k] {
+	for i, v := range filter.hashed_is[:filter.params.k] {
 		if !filter.partitions[i].Test(uint(v)) {
 			// definitely not in set
 			return false
 		}
 	}
-	// may be in set
+	// may be in set, with false positive rate given by err_bound
 	return true
 }
 

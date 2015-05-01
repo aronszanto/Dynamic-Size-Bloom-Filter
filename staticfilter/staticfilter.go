@@ -16,6 +16,8 @@ package StaticFilter
 
 // Including library packages referenced in this file
 import (
+	"encoding/binary"
+	"github.com/aszanto9/Blumo/bloom_i"
 	"github.com/willf/bitset"
 	"hash"
 	"hash/fnv"
@@ -28,6 +30,7 @@ type FilterBase struct {
 	k         uint        // number of hash functions
 	h         hash.Hash64 // hashing generator
 	err_bound float64     // false-positive error bound
+	n         uint
 }
 
 type Filter struct {
@@ -48,6 +51,8 @@ func NewFilterBase(num uint, err_bound float64) *FilterBase {
 	filter_base.m = uint(math.Ceil(-1 * (float64(num) * math.Log(err_bound)) / (math.Log(2) * math.Log(2))))
 	// calculate num hash functions
 	filter_base.k = uint(math.Ceil(math.Log(err_bound) / math.Log(2)))
+	filter_base.h = fnv.New64a()
+	filter_base.n = num
 	return filter_base
 }
 
@@ -59,24 +64,22 @@ func NewFilterBase(num uint, err_bound float64) *FilterBase {
  function of S.
 */
 func (filter_base *FilterBase) CalcBits(data []byte) []uint32 {
-	filter_base.h = fnv.New64a()
 	filter_base.h.Reset()
 	filter_base.h.Write(data)
-	hash := filter_base.h.Sum64()
-	h1 := uint32(hash & ((1 << 32) - 1))
-	h2 := uint32(hash >> 32)
-
+	hash := filter_base.h.Sum(nil)
+	h1 := binary.BigEndian.Uint32(hash[0:4])
+	h2 := binary.BigEndian.Uint32(hash[4:8])
 	indices := make([]uint32, filter_base.k)
-	for i := uint32(0); i <= uint32(filter_base.k); i++ {
-		indices[i] = (h1 + h2*i) % uint32(filter_base.m)
+	for i := range indices[:filter_base.k] {
+		indices[i] = (uint32(h2) + uint32(h1)*uint32(i)) % uint32(filter_base.m)
 	}
 	return indices
 }
 
-func NewFilter(num uint, err_bound float64) *Filter {
+func NewFilter(num uint, err_bound float64) bloom_i.BLOOMFILTER {
 	filter := new(Filter)
 	filter.params = NewFilterBase(num, err_bound)
-	fmt.Printf(fmt.Sprint("m = ", filter.params.m, "\n"))
+	//fmt.Printf(fmt.Sprint("m = ", filter.params.m, "\n"))
 	filter.bset = bitset.New(filter.params.m)
 	return filter
 }
@@ -89,12 +92,24 @@ func (filter *Filter) M() uint {
 	return filter.params.m
 }
 
+func (filter *Filter) GetN() uint {
+	return filter.params.n
+}
+
 func (filter *Filter) K() uint {
 	return filter.params.k
 }
 
 func (filter *Filter) E() float64 {
 	return filter.params.err_bound
+}
+
+func (filter *Filter) Count() uint {
+	return filter.counter
+}
+
+func (filter *Filter) ApproxP() float64 {
+	return float64(filter.counter) / float64(filter.params.m)
 }
 
 /*

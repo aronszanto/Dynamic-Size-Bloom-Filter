@@ -14,6 +14,7 @@ package StaticFilterPartition
 // Including library packages referenced in this file
 import (
 	"encoding/binary"
+	"github.com/aszanto9/Blumo/bloom_i"
 	"github.com/willf/bitset"
 	"hash"
 	"hash/fnv"
@@ -47,9 +48,9 @@ type Filter struct {
 
 func NewFilterBase(num uint, err_bound float64) *FilterBase {
 	fill_ratio := 0.5
-	k := calcK(err_bound)
-	m := calcM(num, err_bound, fill_ratio)
-	partition_size := calcPartitionSize(m, k)
+	k := bloom_i.CalcK(err_bound)
+	m := bloom_i.CalcM(num, err_bound, fill_ratio)
+	partition_size := bloom_i.CalcPartitionSize(m, k)
 
 	return &FilterBase{
 		fill_ratio:     fill_ratio,
@@ -62,20 +63,7 @@ func NewFilterBase(num uint, err_bound float64) *FilterBase {
 	}
 }
 
-func calcK(err_bound float64) uint {
-	return uint(math.Ceil(math.Log2(float64(1) / float64(err_bound))))
-}
-
-func calcM(n uint, err_bound, fill_ratio float64) uint {
-	return uint(math.Ceil(float64(n) /
-		math.Abs(((math.Log(fill_ratio) * math.Log(1-fill_ratio)) / math.Log(err_bound)))))
-}
-
-func calcPartitionSize(m, k uint) uint {
-	return uint(math.Ceil(float64(m) / float64(k)))
-}
-
-func NewFilter(num uint, err_bound float64) *Filter {
+func NewFilter(num uint, err_bound float64) bloom_i.BLOOMFILTER {
 	init_params := NewFilterBase(num, err_bound)
 	return &Filter{
 		params:     init_params,
@@ -112,6 +100,11 @@ func (f *Filter) BitsFlipped() uint {
 	return c
 }
 
+// Calculates approximate fill ratio across the partitions using Taylor Approx.
+func (filter *Filter) ApproxP() float64 {
+	return 1.0 - math.Exp(-float64(filter.counter)/float64(filter.params.m))
+}
+
 func setParts(partition_size, k uint) []*bitset.BitSet {
 	sets := make([]*bitset.BitSet, k)
 	for i := range sets {
@@ -132,17 +125,16 @@ func (filter *Filter) K() uint {
 	return filter.params.k
 }
 
-func (filter *Filter) N() uint {
+func (filter *Filter) GetN() uint {
 	return filter.params.n
+}
+
+func (filter *Filter) Count() uint {
+	return filter.counter
 }
 
 func (filter *Filter) E() float64 {
 	return filter.params.err_bound
-}
-
-// Calculates approximate fill ratio across the partitions using Taylor Approx.
-func (filter *Filter) ApproxP() float64 {
-	return 1.0 - math.Exp(-float64(filter.counter)/float64(filter.params.m))
 }
 
 /*

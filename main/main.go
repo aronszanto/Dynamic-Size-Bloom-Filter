@@ -6,15 +6,23 @@ import "bufio"
 
 //import "testing"
 import "github.com/aszanto9/Blumo/scalablefilterpartition"
+import "github.com/aszanto9/Blumo/staticfilterpartition"
+import "github.com/aszanto9/Blumo/bloom_i"
 
-//import "github.com/aszanto9/Blumo/staticfilter"
-//import "github.com/aszanto9/Blumo/staticfilterpartition"
+//import "testing"
 
 func main() {
 	dict := init_dict()
 	not_in_dict := init_not_dict()
+	err := 0.001
+	static := StaticFilterPartition.NewFilter(1149891, err)
+	scalable := ScalableFilterPartition.NewFilter(err)
 
-	test_scalable_filter(dict, not_in_dict)
+	fmt.Printf("TESTING STATIC FILTER\n\n----------------\n\n")
+	test_filter(dict, not_in_dict, static, err)
+
+	fmt.Printf("TESTING SCALABLE FILTER\n\n")
+	test_filter(dict, not_in_dict, scalable, err)
 
 }
 
@@ -38,7 +46,7 @@ func init_dict() []string {
 func init_not_dict() []string {
 	var nd []string
 	file, err := os.Open("../Dictionaries/not_in_dict.txt")
-	fmt.Printf("Attempting to open dictionary file...\n")
+	fmt.Printf("Attempting to open not_in_dictionary file...\n\n-----------\n\n")
 	if err != nil {
 		fmt.Printf("File open failed.\n")
 		panic(err)
@@ -52,11 +60,10 @@ func init_not_dict() []string {
 	return nd
 }
 
-func test_scalable_filter(dict, not_in_dict []string) {
-	fmt.Printf("Creating scalable, partitioned filter with error bound 0.1 percent...\n")
-	filter := ScalableFilterPartition.NewFilter(.001)
+func test_filter(dict, not_in_dict []string, filter bloom_i.BLOOMFILTER, err float64) {
+	fmt.Printf("Creating filter with error bound %.3f percent...\n", err*100)
 	fmt.Printf("Filter created. Testing filter...\n")
-	fmt.Printf("Inserting dictionary into scalable filter...\n")
+	fmt.Printf("Inserting dictionary into filter...\n")
 	for i := range dict {
 		filter.Insert([]byte(dict[i]))
 	}
@@ -70,6 +77,6 @@ func test_scalable_filter(dict, not_in_dict []string) {
 	}
 
 	fmt.Printf(fmt.Sprint("Number of false positives: ", false_pos,
-		"\nRate of false positives: ", (float64(false_pos)/float64(len(not_in_dict)))*100, " percent\n"))
+		"\nRate of false positives: ", (float64(false_pos)/float64(len(not_in_dict)))*100, " percent\n\n---------------\n\n"))
 
 }

@@ -15,6 +15,7 @@
 package ScalableFilterPartition //MOVE M K ETC SP ETC TO INTERFACE
 
 import (
+	"github.com/aszanto9/Blumo/bloom_i"
 	"github.com/aszanto9/Blumo/staticfilterpartition"
 	"math"
 	// "fmt" // Uncomment this to see the debugging statements during runtime.
@@ -22,25 +23,27 @@ import (
 
 type SBF struct {
 	// head points to the current filter that is not yet full
-	head *StaticFilterPartition.Filter
+	head bloom_i.BLOOMFILTER
 	// an array of pointers to all of the existing filters
-	filter_slice     []*StaticFilterPartition.Filter
+	filter_slice     []bloom_i.BLOOMFILTER
 	scaling_factor   uint    // Factor which determines increase in size of each subsequent static filter
 	N                uint    // Number of bloom filters in scalable filter
 	n_init           uint    // initial
 	total_err_bound  float64 // cumulative false-positive rate of static filters in scalable
 	tightening_ratio float64 // Factor by which the subsequent error bound decreases
 	fill_ratio       float64 // approximation for ratio of 1s to size of bitset
+	n                uint    // dummy value for scaling factor
 }
 
 // Scaling factor and tightening ratio are hard-coded
-func NewFilter(end_e float64) *SBF {
+func NewFilter(end_e float64) bloom_i.BLOOMFILTER {
 	n_init_i := uint(10000)
 	scaling_factor_i := uint(2)
 	fill_ratio_i := 0.05
 	N_i := uint(1)
 	tightening_ratio_i := 0.8
-	head_i := StaticFilterPartition.NewFilter(uint(n_init_i), end_e*(1-tightening_ratio_i))
+	head_i := StaticFilterPartition.NewFilter(uint(n_init_i),
+		end_e*(1-tightening_ratio_i))
 	return &SBF{
 		n_init:           n_init_i,
 		scaling_factor:   scaling_factor_i,
@@ -50,8 +53,16 @@ func NewFilter(end_e float64) *SBF {
 		tightening_ratio: tightening_ratio_i,
 		// Keeps track of current static filter in scalable
 		head:         head_i,
-		filter_slice: []*StaticFilterPartition.Filter{head_i},
+		filter_slice: []bloom_i.BLOOMFILTER{head_i},
 	}
+}
+
+func (sbf *SBF) Count() uint {
+	counter := uint(0)
+	for _, v := range sbf.filter_slice {
+		counter += v.Count()
+	}
+	return counter
 }
 
 // Lookup must check through the slice of constitutent static filters
@@ -72,10 +83,20 @@ func (sbf *SBF) Lookup(data []byte) bool {
 */
 func (sbf *SBF) addBF() {
 	sbf.N++
-	newfilter := StaticFilterPartition.NewFilter(sbf.head.N()*sbf.scaling_factor,
+	newfilter := StaticFilterPartition.NewFilter(sbf.head.GetN()*sbf.scaling_factor,
 		sbf.total_err_bound*math.Pow(sbf.tightening_ratio, float64(sbf.N-1)))
 	sbf.head = newfilter
 	sbf.filter_slice = append(sbf.filter_slice, newfilter)
+}
+
+// not meant to be called, ever
+func (sbf *SBF) GetN() uint {
+	return 0
+}
+
+// Not meant to be called, ever
+func (sbf *SBF) ApproxP() float64 {
+	return 0.0
 }
 
 /*

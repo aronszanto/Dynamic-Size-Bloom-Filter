@@ -31,9 +31,9 @@ type FilterBase struct {
 }
 
 type Filter struct {
-	params  *FilterBase      // needed for generation of new filters
-	bset    *[]bitset.BitSet // pointer to bitset slice
-	counter uint             // counts elements in filter
+	params  *FilterBase    // needed for generation of new filters
+	bset    *bitset.BitSet // pointer to bitset slice
+	counter uint           // counts elements in filter
 }
 
 /*

@@ -21,7 +21,7 @@ func main() {
 	inserted := InsertLines(filter, "../Dictionaries/bigdict.txt")
 	//lines := []string{"aron", "grace", "joe", "joseph", "kai ri"}
 
-	test := fmt.Sprint("Inserted ", inserted, " entries.\n Looking for grace: ", filter.Lookup([]byte("grace")), "\n\nLooking for azazaz: ", filter.Lookup([]byte("azazaz")), "\n\n")
+	test := fmt.Sprint("Inserted ", inserted, " entries.\n Looking for grace: ", filter.Lookup([]byte("grace")), "\n\nLooking for hfglafdfyktfkatdmgcdmac: ", filter.Lookup([]byte("hfglafdfyktfkatdmgcdmac")), "\n\n")
 	fmt.Printf(test)
 }
 

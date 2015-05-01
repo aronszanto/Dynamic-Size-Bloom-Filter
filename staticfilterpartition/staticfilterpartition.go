@@ -132,7 +132,7 @@ func (f *Filter) E() float64 {
 
 // return approximate fill ratio across the k partitions
 func (f *Filter) ApproxP() float64 {
-	return 1.0 - math.Exp(-float64(f.Counter/f.params.m))
+	return 1.0 - math.Exp(-float64(f.Counter)/float64(f.params.m))
 }
 
 // Takes in a slice of indexes

@@ -39,7 +39,7 @@ func NewFilter(end_e float64) *SBF {
 	//default values for s, r (hardcoded)
 	m_init_i := uint(10000)
 	s_i := uint(4)
-	p_i := 0.5
+	p_i := 0.01
 	N_i := uint(1)
 	r_i := 0.8
 	head_i := StaticFilterPartition.NewFilter(uint(m_init_i), end_e*(1-r_i))
@@ -57,7 +57,7 @@ func NewFilter(end_e float64) *SBF {
 
 func (sbf *SBF) Lookup(data []byte) bool {
 	for i := range sbf.filter_slice {
-		//fmt.Printf(fmt.Sprint("Looking for ", data, " in filter #", i, "\n"))
+		fmt.Printf(fmt.Sprint("Looking for ", data, " in filter #", i, "\n"))
 		if sbf.filter_slice[i].Lookup(data) {
 			return true
 		}
@@ -74,8 +74,6 @@ func (sbf *SBF) addBF() {
 		sbf.e*math.Pow(sbf.r, float64(sbf.N-1)))
 	sbf.head = newfilter
 	sbf.filter_slice = append(sbf.filter_slice, newfilter)
-
-	fmt.Printf(fmt.Sprint("Bloom filter #", sbf.N, " added\n"))
 
 }
 

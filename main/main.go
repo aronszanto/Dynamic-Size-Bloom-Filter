@@ -10,12 +10,12 @@ import "github.com/aszanto9/Blumo/staticfilter"
 import "bufio"
 import "os"
 
-import "github.com/davecheney/profile"
+// import "github.com/davecheney/profile"
 import "github.com/aszanto9/Blumo/scalablefilterpartition"
 import "fmt"
 
 func main() {
-	defer profile.Start(profile.CPUProfile).Stop()
+	// defer profile.Start(profile.CPUProfile).Stop()
 	filter := ScalableFilterPartition.NewFilter(.001)
 
 	inserted := InsertLines(filter, "../Dictionaries/1149891.txt")

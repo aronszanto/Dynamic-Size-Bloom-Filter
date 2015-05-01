@@ -18,10 +18,10 @@ func main() {
 	//defer profile.Start(profile.CPUProfile).Stop()
 	filter := ScalableFilterPartition.NewFilter(.001)
 
-	inserted := InsertLines(filter, "../Dictionaries/bigdict.txt")
+	inserted := InsertLines(filter, "../Dictionaries/1149891.txt")
 	//lines := []string{"aron", "grace", "joe", "joseph", "kai ri"}
 
-	test := fmt.Sprint("Inserted ", inserted, " entries.\n Looking for grace: ", filter.Lookup([]byte("grace")), "\n\nLooking for qwertyuiop: ", filter.Lookup([]byte("qwertyuiop")), "\n\n")
+	test := fmt.Sprint("Inserted ", inserted, " entries.\n Looking for JoeIsAKing: ", filter.Lookup([]byte("grace")), "\n\n Looking for AronIsAKing: ", filter.Lookup([]byte("hfglafdfyktfkatdmgcdmac")), "\n\n")
 	fmt.Printf(test)
 }
 

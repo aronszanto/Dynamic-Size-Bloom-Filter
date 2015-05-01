@@ -25,7 +25,7 @@ type SBF struct {
 	// n_init is the n of the first filter in an SBF
 	s, N, n_init uint // JESUS CHRIST FIX THIS LATER
 	// p is the total final error bound, r is the scaling factor for the error bound of new filters
-	e, r, p float64
+	e, r, p float64 // final error bound, tightening ratio, and max fill ratio
 }
 
 /*type SBF interface {
@@ -56,7 +56,8 @@ func NewFilter(end_e float64) *SBF {
 }
 
 func (sbf *SBF) Lookup(data []byte) bool {
-	for i := sbf.N - 1; i >= 0; i-- {
+
+	for i := range sbf.filter_slice {
 		fmt.Printf(fmt.Sprint("Looking for ", data, " in filter #", i, "\n"))
 		if sbf.filter_slice[i].Lookup(data) {
 			fmt.Printf(fmt.Sprint("Found in filter ", i, "\n"))
@@ -73,8 +74,6 @@ func (sbf *SBF) addBF() {
 		sbf.e*math.Pow(sbf.r, float64(sbf.N-1)))
 	sbf.head = newfilter
 	sbf.filter_slice = append(sbf.filter_slice, newfilter)
-
-	fmt.Printf(fmt.Sprint("Bloom filter #", sbf.N, " added\n"))
 
 }
 

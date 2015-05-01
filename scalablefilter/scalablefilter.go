@@ -23,8 +23,8 @@ type SBF struct {
 	// an array of pointers to all of the existing filters
 	filter_slice []*StaticFilter.Filter
 	// s is the scaling factor for the size of new filters, N is the number of existing filters
-	// m_init is the m of the first filter in an SBF
-	s, N, m_init uint // JESUS CHRIST FIX THIS LATER
+	// n_init is the n of the first filter in an SBF
+	s, N, n_init uint // JESUS CHRIST FIX THIS LATER
 	// p is the total final error bound, r is the scaling factor for the error bound of new filters
 	p, r float64
 }
@@ -38,19 +38,20 @@ type SBF struct {
 
 func NewFilter(end_p float64) *SBF {
 	//default values for s, r (hardcoded)
-	m_init_i := uint(1000)
+	n_init_i := uint(1000)
 	s_i := uint(4)
 	N_i := uint(1)
+	// we might not want to hard code this, leave it as a constant?
 	r_i := 0.8
-	head_i := StaticFilter.NewFilter(uint(m_init_i), end_p*(1-r_i))
+	head_i := StaticFilter.NewFilter(uint(n_init_i), end_p*(1-r_i))
 	return &SBF{
-		m_init:       m_init_i,
+		n_init:       n_init_i,
 		s:            s_i,
 		N:            N_i,
 		p:            end_p,
 		r:            r_i,
 		head:         head_i,
-		headcap:      uint(math.Ceil((float64(m_init_i) * math.Log(2)))),
+		headcap:      uint(math.Ceil((float64(head_i.m) * math.Log(2)))),
 		filter_slice: []*StaticFilter.Filter{head_i},
 	}
 }

@@ -1,3 +1,7 @@
+/*
+  INTERFACE FOR BLOOM FILTERS. ALL FILTERS MUST IMPLEMENT THIS INTERFACE.
+
+*/
 package bloom_i
 
 import "math"

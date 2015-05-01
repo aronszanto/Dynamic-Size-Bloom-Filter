@@ -46,6 +46,7 @@ type Filter struct {
 */
 func NewFilterBase(num uint, eps float64) *FilterBase {
 	p := 0.5
+	// change this calculation vis a vis grace's idea
 	k := calcK(eps)
 	m := calcM(num, eps, p)
 	sp := calcSP(m, k)

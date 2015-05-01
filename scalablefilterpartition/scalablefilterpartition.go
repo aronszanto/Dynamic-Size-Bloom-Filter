@@ -1,6 +1,6 @@
 /*
 
- This file implements the foundation for our CS51 final project.
+ This file implements the extension for our CS51 final project.
 
  Joseph Kahn    josephkahn@college.harvard.edu
  Grace Lin      glin@college.harvard.edu
@@ -22,10 +22,10 @@ type SBF struct {
 	// an array of pointers to all of the existing filters
 	filter_slice []*StaticFilterPartition.Filter
 	// s is the scaling factor for the size of new filters, N is the number of existing filters
-	// m_init is the m of the first filter in an SBF
-	s, N, m_init uint // JESUS CHRIST FIX THIS LATER
+	// n_init is the n of the first filter in an SBF
+	s, N, n_init uint // JESUS CHRIST FIX THIS LATER
 	// p is the total final error bound, r is the scaling factor for the error bound of new filters
-	e, r, p float64
+	e, r, p float64 // final error bound, tightening ratio, and max fill ratio
 }
 
 /*type SBF interface {
@@ -37,14 +37,14 @@ type SBF struct {
 
 func NewFilter(end_e float64) *SBF {
 	//default values for s, r (hardcoded)
-	m_init_i := uint(10000)
-	s_i := uint(4)
+	n_init_i := uint(10000)
+	s_i := uint(2)
 	p_i := 0.05
 	N_i := uint(1)
 	r_i := 0.8
-	head_i := StaticFilterPartition.NewFilter(uint(m_init_i), end_e*(1-r_i))
+	head_i := StaticFilterPartition.NewFilter(uint(n_init_i), end_e*(1-r_i))
 	return &SBF{
-		m_init:       m_init_i,
+		n_init:       n_init_i,
 		s:            s_i,
 		N:            N_i,
 		e:            end_e,
@@ -56,17 +56,17 @@ func NewFilter(end_e float64) *SBF {
 }
 
 func (sbf *SBF) Lookup(data []byte) bool {
+
 	for i := range sbf.filter_slice {
 		fmt.Printf(fmt.Sprint("Looking for ", data, " in filter #", i, "\n"))
 		if sbf.filter_slice[i].Lookup(data) {
+			fmt.Printf(fmt.Sprint("Found in filter ", i, "\n"))
 			return true
 		}
 	}
 	return false
 
 }
-
-// maybe insert should simply mutate the existing SBF, not return a completely new one...?
 
 func (sbf *SBF) addBF() {
 	sbf.N++
@@ -79,6 +79,8 @@ func (sbf *SBF) addBF() {
 
 func (sbf *SBF) Insert(data []byte) {
 	if sbf.head.ApproxP() > sbf.p {
+		fmt.Printf(fmt.Sprint("Approx fill of filter with ", sbf.head.M(), " bits, of which ", sbf.head.BitsFlipped(), " are flipped, is ", sbf.head.ApproxP(), " so adding new filter\n"))
+
 		sbf.addBF()
 	}
 	sbf.head.Insert(data)

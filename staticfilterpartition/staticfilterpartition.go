@@ -63,7 +63,7 @@ func NewFilterBase(num uint, err_bound float64) *FilterBase {
 }
 
 func calcK(err_bound float64) uint {
-	return uint(math.Ceil(math.Log2(1 / err_bound)))
+	return uint(math.Ceil(math.Log2(float64(1) / float64(err_bound))))
 }
 
 func calcM(n uint, err_bound, fill_ratio float64) uint {

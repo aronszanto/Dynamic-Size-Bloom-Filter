@@ -8,10 +8,10 @@
 
 */
 
-package ScalableFilterPartition
+package ScalableFilterPartition //MOVE M K ETC SP ETC TO INTERFACE
 
 import (
-	"fmt"
+	//"fmt"
 	"github.com/aszanto9/Blumo/staticfilterpartition"
 	"math"
 )
@@ -48,9 +48,9 @@ func NewFilter(end_e float64) *SBF {
 func (sbf *SBF) Lookup(data []byte) bool {
 
 	for i := range sbf.filter_slice {
-		fmt.Printf(fmt.Sprint("Looking for ", data, " in filter #", i, "\n"))
+		//fmt.Printf(fmt.Sprint("Looking for ", data, " in filter #", i, "\n"))
 		if sbf.filter_slice[i].Lookup(data) {
-			fmt.Printf(fmt.Sprint("Found in filter ", i, "\n"))
+			//fmt.Printf(fmt.Sprint("Found in filter ", i, "\n"))
 			return true
 		}
 	}
@@ -69,7 +69,7 @@ func (sbf *SBF) addBF() {
 
 func (sbf *SBF) Insert(data []byte) {
 	if sbf.head.ApproxP() > sbf.fill_ratio {
-		fmt.Printf(fmt.Sprint("Approx fill of filter with ", sbf.head.M(), " bits, of which ", sbf.head.BitsFlipped(), " are flipped, is ", sbf.head.ApproxP(), " so adding new filter\n"))
+		//fmt.Printf(fmt.Sprint("Approx fill of filter with ", sbf.head.M(), " bits, of which ", sbf.head.BitsFlipped(), " are flipped, is ", sbf.head.ApproxP(), " so adding new filter\n"))
 
 		sbf.addBF()
 	}

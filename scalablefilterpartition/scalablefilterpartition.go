@@ -12,11 +12,12 @@
 
 */
 
-package ScalableFilterPartition
+package ScalableFilterPartition //MOVE M K ETC SP ETC TO INTERFACE
 
 import (
 	"github.com/aszanto9/Blumo/staticfilterpartition"
 	"math"
+	// "fmt" // Uncomment this to see the debugging statements during runtime.
 )
 
 type SBF struct {
@@ -56,9 +57,9 @@ func NewFilter(end_e float64) *SBF {
 // Lookup must check through the slice of constitutent static filters
 func (sbf *SBF) Lookup(data []byte) bool {
 	for i := range sbf.filter_slice {
-		fmt.Printf(fmt.Sprint("Looking for ", data, " in filter #", i, "\n"))
+		//fmt.Printf(fmt.Sprint("Looking for ", data, " in filter #", i, "\n"))
 		if sbf.filter_slice[i].Lookup(data) {
-			fmt.Printf(fmt.Sprint("Found in filter ", i, "\n"))
+			//fmt.Printf(fmt.Sprint("Found in filter ", i, "\n"))
 			return true
 		}
 	}

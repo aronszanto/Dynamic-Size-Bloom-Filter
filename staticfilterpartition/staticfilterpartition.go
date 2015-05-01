@@ -164,5 +164,4 @@ func (filter *Filter) Reset() {
 	filter.params = NewFilterBase(filter.params.n, filter.params.e)
 	filter.ps = setParts(filter.params.sp, filter.params.k)
 	filter.Counter = uint(0)
-
 }

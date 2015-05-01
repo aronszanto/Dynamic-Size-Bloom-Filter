@@ -39,7 +39,7 @@ func NewFilter(end_e float64) *SBF {
 	//default values for s, r (hardcoded)
 	m_init_i := uint(10000)
 	s_i := uint(4)
-	p_i := 0.001
+	p_i := 0.05
 	N_i := uint(1)
 	r_i := 0.8
 	head_i := StaticFilterPartition.NewFilter(uint(m_init_i), end_e*(1-r_i))

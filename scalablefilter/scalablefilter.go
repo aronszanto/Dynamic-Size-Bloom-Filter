@@ -10,7 +10,8 @@
  implementing the partioned filter over debugging this one.
 
  This code is purely included to show part of our development process, and no tests
- have been written for it.
+ have been written for it. Also, this shows the code when we were still using non-descriptive variable
+ names, and had not yet commented exhaustively.
 
  Joseph Kahn    josephkahn@college.harvard.edu
  Grace Lin      glin@college.harvard.edu
@@ -34,13 +35,13 @@ type SBF struct {
 	filter_slice []*StaticFilter.Filter
 	// s is the scaling factor for the size of new filters, N is the number of existing filters
 	// n_init is the n of the first filter in an SBF
-	s, N, n_init uint // JESUS CHRIST FIX THIS LATER
+	s, N, n_init uint
 	// p is the total final error bound, r is the scaling factor for the error bound of new filters
 	p, r float64
 }
 
 func NewFilter(end_p float64) *SBF {
-	//default values for s, r (hardcoded)
+	//default values for s and r hardoded
 	n_init_i := uint(1000)
 	s_i := uint(4)
 	N_i := uint(1)
@@ -66,7 +67,6 @@ func (sbf *SBF) Lookup(data []byte) bool {
 		}
 	}
 	return false
-
 }
 
 func (sbf *SBF) addBF() {
@@ -76,7 +76,6 @@ func (sbf *SBF) addBF() {
 	sbf.filter_slice = append(sbf.filter_slice, newfilter)
 	sbf.N++
 	fmt.Printf(fmt.Sprint("Bloom filter #", sbf.N, " added\n"))
-
 }
 
 func (sbf *SBF) Insert(data []byte) {

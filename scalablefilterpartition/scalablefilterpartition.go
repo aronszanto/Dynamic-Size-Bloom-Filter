@@ -15,7 +15,6 @@
 package ScalableFilterPartition
 
 import (
-	// "fmt"
 	"github.com/aszanto9/Blumo/staticfilterpartition"
 	"math"
 )
@@ -56,7 +55,6 @@ func NewFilter(end_e float64) *SBF {
 
 // Lookup must check through the slice of constitutent static filters
 func (sbf *SBF) Lookup(data []byte) bool {
-
 	for i := range sbf.filter_slice {
 		fmt.Printf(fmt.Sprint("Looking for ", data, " in filter #", i, "\n"))
 		if sbf.filter_slice[i].Lookup(data) {
@@ -65,7 +63,6 @@ func (sbf *SBF) Lookup(data []byte) bool {
 		}
 	}
 	return false
-
 }
 
 /*

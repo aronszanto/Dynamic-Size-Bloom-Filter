@@ -119,6 +119,10 @@ func setParts(partition_size, k uint) []*bitset.BitSet {
 	return sets
 }
 
+/*
+ The following four functions are methods for accessing
+ filter parameters externally.
+*/
 func (filter *Filter) M() uint {
 	return filter.params.m
 }
@@ -135,7 +139,7 @@ func (filter *Filter) E() float64 {
 	return filter.params.err_bound
 }
 
-// return approximate fill ratio across the partitions
+// Calculates approximate fill ratio across the partitions using Taylor Approx.
 func (filter *Filter) ApproxP() float64 {
 	return 1.0 - math.Exp(-float64(filter.counter)/float64(filter.params.m))
 }

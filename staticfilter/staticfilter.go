@@ -16,7 +16,6 @@ package StaticFilter
 
 // Including library packages referenced in this file
 import (
-	"fmt"
 	"github.com/willf/bitset"
 	"hash"
 	"hash/fnv"
@@ -83,10 +82,9 @@ func NewFilter(num uint, err_bound float64) *Filter {
 }
 
 /*
- The following functions make it cleaner to access these parameters
- outside of this package.
+ The following three functions are methods for accessing
+ filter parameters externally.
 */
-
 func (filter *Filter) M() uint {
 	return filter.params.m
 }

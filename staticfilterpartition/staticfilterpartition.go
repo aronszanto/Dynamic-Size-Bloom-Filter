@@ -22,21 +22,21 @@ import (
 
 // type definition for standard bloom filter
 type FilterBase struct {
-	m  uint        // size of bitset
-	k  uint        // number of hash functions
-	h  hash.Hash64 // hashing generator
-	e  float64     // error bound
-	p  float64     // fill ratio
-	sp uint        // size partition
-	n  uint        // expected number of keys
+	m              uint        // size of bitset
+	k              uint        // number of hash functions
+	h              hash.Hash64 // hashing generator
+	err_bound      float64     // error bound
+	fill_ratio     float64     // fill ratio
+	partition_size uint        // size partition
+	n              uint        // expected number of keys
 
 }
 
 type Filter struct {
-	params   *FilterBase      // needed for generation
-	ps       []*bitset.BitSet // partitions
-	Counter  uint             // counts elements
-	hashedis []uint
+	params     *FilterBase      // needed for generation
+	partitions []*bitset.BitSet // partitions
+	counter    uint             // counts elements
+	hashedis   []uint           // **********!!!!!!! ARON WHAT IS THIS IT'S NOT DESCRIPTIVE
 }
 
 /*
@@ -44,63 +44,63 @@ type Filter struct {
  required hash functions given the size of set being
  stored and the acceptable error bound for the task at hand
 */
-func NewFilterBase(num uint, eps float64) *FilterBase {
-	p := 0.5
-	// change this calculation vis a vis grace's idea
-	k := calcK(eps)
-	m := calcM(num, eps, p)
-	sp := calcSP(m, k)
+
+func NewFilterBase(num uint, err_bound float64) *FilterBase {
+	fill_ratio := 0.5
+	k := calcK(err_bound)
+	m := calcM(num, err_bound, fill_ratio)
+	partition_size := calcPartitionSize(m, k)
 
 	return &FilterBase{
-		p:  p,
-		k:  k,
-		m:  m,
-		sp: sp,
-		e:  eps,
-		n:  num,
-		h:  fnv.New64a(),
+		fill_ratio:     fill_ratio,
+		k:              k,
+		m:              m,
+		partition_size: partition_size,
+		err_bound:      err_bound,
+		n:              num,
+		h:              fnv.New64a(),
 	}
 }
 
-func calcK(eps float64) uint {
-	return uint(math.Ceil(math.Log2(1 / eps)))
+func calcK(err_bound float64) uint {
+	return uint(math.Ceil(math.Log2(1 / err_bound)))
 }
 
-func calcM(n uint, eps, p float64) uint {
+func calcM(n uint, err_bound, fill_ratio float64) uint {
 	return uint(math.Ceil(float64(n) /
-		math.Abs(((math.Log(p) * math.Log(1-p)) / math.Log(eps)))))
+		math.Abs(((math.Log(fill_ratio) * math.Log(1-fill_ratio)) / math.Log(err_bound)))))
 }
 
-func calcSP(m, k uint) uint {
+func calcPartitionSize(m, k uint) uint {
 	return uint(math.Ceil(float64(m) / float64(k)))
 }
 
-func NewFilter(num uint, eps float64) *Filter {
-	init_params := NewFilterBase(num, eps)
+func NewFilter(num uint, err_bound float64) *Filter {
+	init_params := NewFilterBase(num, err_bound)
 	return &Filter{
-		params:   init_params,
-		ps:       setParts(init_params.sp, init_params.k),
-		Counter:  uint(0),
-		hashedis: make([]uint, init_params.k),
+		params:     init_params,
+		partitions: setParts(init_params.partition_size, init_params.k),
+		counter:    uint(0),
+		hashedis:   make([]uint, init_params.k),
 	}
 
-	/*filter.params = NewFilterBase(num, eps)
+	/*filter.params = NewFilterBase(num, err_bound)
 	fmt.Printf(fmt.Sprint("m = ", filter.params.m, "\n"))
-	filter.ps = setParts(filter.params.sp, filter.params.k)
+	filter.partitions = setParts(filter.params.sp, filter.params.k)
 	return filter*/
 }
 
-func (f *Filter) CalcBits(d []byte) {
+func (filter *Filter) CalcBits(d []byte) {
 	//fmt.Printf("CalcBits\n")
-	f.params.h.Reset()
-	f.params.h.Write(d)
-	hash := f.params.h.Sum(nil)
+	filter.params.h.Reset()
+	filter.params.h.Write(d)
+	hash := filter.params.h.Sum(nil)
 	h1 := binary.BigEndian.Uint32(hash[0:4])
 	h2 := binary.BigEndian.Uint32(hash[4:8])
 	//o := fmt.Sprint("h1 = ", h1, " and h2 = ", h2, "\n")
 	//fmt.Printf(o)
-	for i := range f.hashedis[:f.params.k] {
-		f.hashedis[i] = (uint(h2) + uint(h1)*uint(i)) % f.params.sp //changed this line to i-1 and the above to <= and 1
+	for i := range filter.hashedis[:filter.params.k] {
+		filter.hashedis[i] = (uint(h2) + uint(h1)*uint(i)) % filter.params.partition_size //changed this line to i-1 and the above to <= and 1
 	}
 
 	//op := fmt.Sprint(indices, " : bits set to be flipped\n")
@@ -109,39 +109,39 @@ func (f *Filter) CalcBits(d []byte) {
 
 func (f *Filter) BitsFlipped() uint {
 	c := uint(0)
-	for i := range f.ps {
-		c += f.ps[i].Count()
+	for i := range f.partitions {
+		c += f.partitions[i].Count()
 	}
 	return c
 }
 
-func setParts(sp, k uint) []*bitset.BitSet {
+func setParts(partition_size, k uint) []*bitset.BitSet {
 	sets := make([]*bitset.BitSet, k)
 	for i := range sets {
-		sets[i] = bitset.New(sp)
+		sets[i] = bitset.New(partition_size)
 	}
 	return sets
 }
 
-func (f *Filter) M() uint {
-	return f.params.m
+func (filter *Filter) M() uint {
+	return filter.params.m
 }
 
-func (f *Filter) K() uint {
-	return f.params.k
+func (filter *Filter) K() uint {
+	return filter.params.k
 }
 
-func (f *Filter) N() uint {
-	return f.params.n
+func (filter *Filter) N() uint {
+	return filter.params.n
 }
 
-func (f *Filter) E() float64 {
-	return f.params.e
+func (filter *Filter) E() float64 {
+	return filter.params.err_bound
 }
 
 // return approximate fill ratio across the k partitions
-func (f *Filter) ApproxP() float64 {
-	return 1.0 - math.Exp(-float64(f.Counter)/float64(f.params.m))
+func (filter *Filter) ApproxP() float64 {
+	return 1.0 - math.Exp(-float64(filter.counter)/float64(filter.params.m))
 }
 
 // Takes in a slice of indexes
@@ -152,15 +152,15 @@ func (filter *Filter) Insert(data []byte) {
 	//fmt.Printf("Insert after CalcBits\n")
 	for i, v := range filter.hashedis[:filter.params.k] {
 		//fmt.Printf(fmt.Sprint("Loop iteration ", i, "\n"))
-		filter.ps[i].Set(v)
+		filter.partitions[i].Set(v)
 	}
-	filter.Counter++
+	filter.counter++
 }
 
 func (filter *Filter) Lookup(data []byte) bool {
 	filter.CalcBits(data)
 	for i, v := range filter.hashedis[:filter.params.k] {
-		if !filter.ps[i].Test(uint(v)) {
+		if !filter.partitions[i].Test(uint(v)) {
 			// definitely not in set
 			return false
 		}
@@ -170,8 +170,7 @@ func (filter *Filter) Lookup(data []byte) bool {
 }
 
 func (filter *Filter) Reset() {
-	filter.params = NewFilterBase(filter.params.n, filter.params.e)
-	filter.ps = setParts(filter.params.sp, filter.params.k)
-	filter.Counter = uint(0)
-
+	filter.params = NewFilterBase(filter.params.n, filter.params.err_bound)
+	filter.partitions = setParts(filter.params.partition_size, filter.params.k)
+	filter.counter = uint(0)
 }
